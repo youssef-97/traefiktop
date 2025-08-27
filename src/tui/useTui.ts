@@ -37,6 +37,10 @@ export const useTui = (routers: Router[]) => {
           ),
         });
       }
+
+      if (key.escape) {
+        dispatch({ type: "SET_SEARCH_QUERY", payload: "" });
+      }
     }
 
     if (state.mode === "search") {
