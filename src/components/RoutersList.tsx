@@ -1,8 +1,8 @@
-import { Box, Text, useInput } from "ink";
+import { Box, Text } from "ink";
 import TextInput from "ink-text-input";
 import type React from "react";
-import { useState } from "react";
 import { useTraefikData } from "../hooks/useTraefikData";
+import { useTui } from "../tui/useTui";
 import RouterItem from "./RouterItem";
 
 interface RoutersListProps {
@@ -15,19 +15,7 @@ const RoutersList: React.FC<RoutersListProps> = ({
   useTraefikDataHook = useTraefikData,
 }) => {
   const { routers, services, loading, error } = useTraefikDataHook(apiUrl);
-  const [filter, setFilter] = useState("");
-  const [selectedRouter, setSelectedRouter] = useState(0);
-
-  useInput((_input, key) => {
-    if (key.upArrow) {
-      setSelectedRouter((prev) => Math.max(0, prev - 1));
-    }
-    if (key.downArrow) {
-      setSelectedRouter((prev) =>
-        Math.min(filteredRouters.length - 1, prev + 1),
-      );
-    }
-  });
+  const { state, dispatch, filteredRouters } = useTui(routers);
 
   if (loading) {
     return <Text>Loading...</Text>;
@@ -37,22 +25,29 @@ const RoutersList: React.FC<RoutersListProps> = ({
     return <Text>Error: {error.message}</Text>;
   }
 
-  const filteredRouters = routers.filter((router) =>
-    router.name.toLowerCase().includes(filter.toLowerCase()),
-  );
-
   return (
     <Box flexDirection="column">
-      <Box>
-        <Text>Filter: </Text>
-        <TextInput value={filter} onChange={setFilter} />
-      </Box>
+      {state.mode === "search" ? (
+        <Box>
+          <Text>Filter: </Text>
+          <TextInput
+            value={state.searchQuery}
+            onChange={(query) =>
+              dispatch({ type: "SET_SEARCH_QUERY", payload: query })
+            }
+          />
+        </Box>
+      ) : (
+        <Box>
+          <Text>Press / to search</Text>
+        </Box>
+      )}
       {filteredRouters.map((router, index) => (
         <RouterItem
           key={router.name}
           router={router}
           services={services}
-          isSelected={index === selectedRouter}
+          isSelected={index === state.selectedRouter}
         />
       ))}
     </Box>
