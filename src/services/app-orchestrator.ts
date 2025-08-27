@@ -54,8 +54,13 @@ export class DefaultAppOrchestrator implements AppOrchestrator {
     log.debug("Begin loading Argo CD cli config");
 
     try {
+      log.info("Attempting to read CLI config...", "boot");
       const cfg = await readCLIConfig();
-      if (effectiveSignal.aborted) return;
+      log.info("Finished reading CLI config.", "boot");
+      if (effectiveSignal.aborted) {
+        log.debug("Aborted after readCLIConfig");
+        return;
+      }
 
       if (cfg.isErr()) {
         this.loadingAbortController = null;
@@ -68,8 +73,13 @@ export class DefaultAppOrchestrator implements AppOrchestrator {
         return;
       }
 
+      log.info("Attempting to get current server config object...", "boot");
       const serverConfig = getCurrentServerConfigObj(cfg.value);
-      if (effectiveSignal.aborted) return;
+      log.info("Finished getting current server config object.", "boot");
+      if (effectiveSignal.aborted) {
+        log.debug("Aborted after getCurrentServerConfigObj");
+        return;
+      }
 
       if (serverConfig.isErr()) {
         this.loadingAbortController = null;
@@ -82,8 +92,13 @@ export class DefaultAppOrchestrator implements AppOrchestrator {
         return;
       }
 
+      log.info("Attempting to get token from config...", "boot");
       const tokenResult = tokenFromConfig(cfg.value);
-      if (effectiveSignal.aborted) return;
+      log.info("Finished getting token from config.", "boot");
+      if (effectiveSignal.aborted) {
+        log.debug("Aborted after tokenFromConfig");
+        return;
+      }
 
       if (tokenResult.isErr()) {
         this.loadingAbortController = null;
@@ -101,20 +116,27 @@ export class DefaultAppOrchestrator implements AppOrchestrator {
       dispatch({ type: "SET_SERVER", payload: serverObj });
 
       // Get API version
-      log.debug("Fetching API version");
+      log.info("Attempting to fetch API version", "boot");
       try {
         const version = await getApiVersion(serverObj, {
           signal: effectiveSignal,
-          timeout: 1000,
+          timeout: 5000, // Increased timeout
         });
+        log.info(
+          `Finished fetching API version: ${JSON.stringify(version)}`,
+          "boot",
+        );
         dispatch({ type: "SET_API_VERSION", payload: version });
       } catch (error: any) {
-        if (effectiveSignal.aborted) return;
+        if (effectiveSignal.aborted) {
+          log.debug("Aborted during API version fetch");
+          return;
+        }
         this.loadingAbortController = null;
         dispatch({ type: "SET_SERVER", payload: null });
         const message = error?.message?.includes("timeout")
           ? "Could not connect to Argo CD! Connection timed out."
-          : "Could not connect to Argo CD! Is it dead?";
+          : `Could not connect to Argo CD! Is it dead? Error: ${error.message}`; // More detailed error
         statusLog.error(message, "connection");
         dispatch({ type: "SET_MODE", payload: "error" });
         return;
@@ -122,10 +144,15 @@ export class DefaultAppOrchestrator implements AppOrchestrator {
       log.debug("Fetched API version");
 
       // Verify user info
+      log.info("Attempting to fetch user info", "boot");
       const userInfoResult = await getUserInfo(serverObj, {
         signal: effectiveSignal,
-        timeout: 1000,
+        timeout: 5000, // Increased timeout
       });
+      log.info(
+        `Finished fetching user info: ${JSON.stringify(userInfoResult)}`,
+        "boot",
+      );
 
       if (effectiveSignal.aborted) {
         log.debug("Signal aborted after getUserInfo, exiting initialization");

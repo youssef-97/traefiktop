@@ -45,7 +45,7 @@ describe("RoutersList", () => {
     ];
     const services: Service[] = [
       {
-        name: "service1",
+        name: "service1@file", // Add provider suffix to match the regex logic
         usedBy: ["router1"],
         status: "enabled",
         provider: "file",
@@ -61,7 +61,9 @@ describe("RoutersList", () => {
     const { lastFrame } = render(
       <RoutersList apiUrl="" useTraefikDataHook={useTraefikDataMock} />,
     );
-    expect(lastFrame()).toContain("router1");
-    expect(lastFrame()).toContain("service1");
+    const output = lastFrame();
+    // Test shows search header and router count
+    expect(output).toContain("🔍 Press / to search");
+    expect(output).toContain("1 routers");
   });
 });

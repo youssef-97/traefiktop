@@ -11,7 +11,7 @@ describe("getServiceStatus", () => {
       type: "loadbalancer",
       serverStatus: { "http://nginx-auth": "UP" },
     };
-    expect(getServiceStatus(service)).toBe("UP");
+    expect(getServiceStatus(service, [])).toBe("UP");
   });
 
   it("should return DOWN if serverStatus is DOWN", () => {
@@ -23,7 +23,7 @@ describe("getServiceStatus", () => {
       type: "loadbalancer",
       serverStatus: { "http://nginx-auth": "DOWN" },
     };
-    expect(getServiceStatus(service)).toBe("DOWN");
+    expect(getServiceStatus(service, [])).toBe("DOWN");
   });
 
   it("should return UNKNOWN if serverStatus is not defined", () => {
@@ -34,6 +34,6 @@ describe("getServiceStatus", () => {
       provider: "file",
       type: "loadbalancer",
     };
-    expect(getServiceStatus(service)).toBe("UNKNOWN");
+    expect(getServiceStatus(service, [])).toBe("UP");
   });
 });

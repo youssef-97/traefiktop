@@ -1,203 +1,7 @@
 import { useEffect, useState } from "react";
+
+import { getRouters, getServices } from "../api/traefik";
 import type { Router, Service } from "../types/traefik";
-
-const mockRouters: Router[] = [
-  {
-    entryPoints: ["dev"],
-    middlewares: ["default-security-headers@file"],
-    service: "api-auth",
-    rule: "Host(`dev.penneo.com`) && PathPrefix(`/auth/api`)",
-    priority: 49,
-    tls: { options: "default" },
-    status: "enabled",
-    using: ["dev"],
-    name: "api-auth-api-router@file",
-    provider: "file",
-  },
-  {
-    entryPoints: ["dev"],
-    middlewares: [],
-    service: "api-docs",
-    rule: "Host(`api-docs.penneo.devel`)",
-    priority: 2,
-    status: "enabled",
-    using: ["dev"],
-    name: "api-docs-router@file",
-    provider: "file",
-  },
-  {
-    entryPoints: ["dev"],
-    middlewares: [],
-    service: "failover-service@file",
-    rule: "Host(`failover.penneo.devel`)",
-    priority: 1,
-    status: "enabled",
-    using: ["dev"],
-    name: "failover-router@file",
-    provider: "file",
-  },
-];
-
-const mockServices: Service[] = [
-  {
-    loadBalancer: {
-      servers: [{ url: "http://nginx-auth" }],
-      healthCheck: {
-        mode: "http",
-        path: "/api/v1/status",
-        interval: "5s",
-        timeout: "2s",
-      },
-    },
-    status: "enabled",
-    serverStatus: { "http://nginx-auth": "UP" },
-    usedBy: ["api-auth-api-router@file", "api-auth@file"],
-    name: "api-auth-local@file",
-    provider: "file",
-    type: "loadbalancer",
-  },
-  {
-    loadBalancer: {
-      servers: [{ url: "http://docs-server:3000" }],
-    },
-    status: "enabled",
-    serverStatus: { "http://docs-server:3000": "UP" },
-    usedBy: ["api-docs-router@file"],
-    name: "api-docs-service",
-    provider: "file",
-    type: "loadbalancer",
-  },
-  {
-    status: "enabled",
-    usedBy: ["failover-router@file"],
-    name: "failover-service@file",
-    provider: "file",
-    type: "failover",
-  },
-  {
-    loadBalancer: {
-      servers: [{ url: "http://primary-service" }],
-    },
-    status: "enabled",
-    serverStatus: { "http://primary-service": "UP" },
-    usedBy: ["failover-service@file"],
-    name: "primary-service@file",
-    provider: "file",
-    type: "loadbalancer",
-  },
-  {
-    loadBalancer: {
-      servers: [{ url: "http://fallback-service" }],
-    },
-    status: "enabled",
-    serverStatus: { "http://fallback-service": "DOWN" },
-    usedBy: ["failover-service@file"],
-    name: "fallback-service@file",
-    provider: "file",
-    type: "loadbalancer",
-  },
-];
-
-import { useEffect, useState } from "react";
-
-import type { Router, Service } from "../types/traefik";
-
-const mockRouters: Router[] = [
-  {
-    entryPoints: ["dev"],
-    middlewares: ["default-security-headers@file"],
-    service: "api-auth",
-    rule: "Host(`dev.penneo.com`) && PathPrefix(`/auth/api`)",
-    priority: 49,
-    tls: { options: "default" },
-    status: "enabled",
-    using: ["dev"],
-    name: "api-auth-api-router@file",
-    provider: "file",
-  },
-  {
-    entryPoints: ["dev"],
-    middlewares: [],
-    service: "api-docs",
-    rule: "Host(`api-docs.penneo.devel`)",
-    priority: 2,
-    status: "enabled",
-    using: ["dev"],
-    name: "api-docs-router@file",
-    provider: "file",
-  },
-  {
-    entryPoints: ["dev"],
-    middlewares: [],
-    service: "failover-service@file",
-    rule: "Host(`failover.penneo.devel`)",
-    priority: 1,
-    status: "enabled",
-    using: ["dev"],
-    name: "failover-router@file",
-    provider: "file",
-  },
-];
-
-const mockServices: Service[] = [
-  {
-    loadBalancer: {
-      servers: [{ url: "http://nginx-auth" }],
-      healthCheck: {
-        mode: "http",
-        path: "/api/v1/status",
-        interval: "5s",
-        timeout: "2s",
-      },
-    },
-    status: "enabled",
-    serverStatus: { "http://nginx-auth": "UP" },
-    usedBy: ["api-auth-api-router@file", "api-auth@file"],
-    name: "api-auth-local@file",
-    provider: "file",
-    type: "loadbalancer",
-  },
-  {
-    loadBalancer: {
-      servers: [{ url: "http://docs-server:3000" }],
-    },
-    status: "enabled",
-    serverStatus: { "http://docs-server:3000": "UP" },
-    usedBy: ["api-docs-router@file"],
-    name: "api-docs-service",
-    provider: "file",
-    type: "loadbalancer",
-  },
-  {
-    status: "enabled",
-    usedBy: ["failover-router@file"],
-    name: "failover-service@file",
-    provider: "file",
-    type: "failover",
-  },
-  {
-    loadBalancer: {
-      servers: [{ url: "http://primary-service" }],
-    },
-    status: "enabled",
-    serverStatus: { "http://primary-service": "UP" },
-    usedBy: ["failover-service@file"],
-    name: "primary-service@file",
-    provider: "file",
-    type: "loadbalancer",
-  },
-  {
-    loadBalancer: {
-      servers: [{ url: "http://fallback-service" }],
-    },
-    status: "enabled",
-    serverStatus: { "http://fallback-service": "DOWN" },
-    usedBy: ["failover-service@file"],
-    name: "fallback-service@file",
-    provider: "file",
-    type: "loadbalancer",
-  },
-];
 
 export const useTraefikData = (apiUrl: string) => {
   const [routers, setRouters] = useState<Router[]>([]);
@@ -208,13 +12,36 @@ export const useTraefikData = (apiUrl: string) => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setRouters(mockRouters);
-      setServices(mockServices);
+      const [routersResult, servicesResult] = await Promise.all([
+        getRouters(apiUrl),
+        getServices(apiUrl),
+      ]);
+
+      if (routersResult.isErr()) {
+        console.error("Error fetching routers:", routersResult.error);
+        setError(routersResult.error);
+        setLoading(false);
+        return;
+      }
+
+      if (servicesResult.isErr()) {
+        console.error("Error fetching services:", servicesResult.error);
+        setError(servicesResult.error);
+        setLoading(false);
+        return;
+      }
+
+      setRouters(routersResult.value);
+      setServices(servicesResult.value);
       setLoading(false);
     };
 
     fetchData();
-  }, []);
+
+    // Disabled auto-refresh for now to prevent excessive API calls
+    // const intervalId = setInterval(fetchData, 5000); // Refresh every 5 seconds
+    // return () => clearInterval(intervalId); // Cleanup on unmount
+  }, [apiUrl]);
 
   return { routers, services, loading, error };
 };

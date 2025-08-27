@@ -6,10 +6,13 @@ describe("getFailoverServices", () => {
     const services: Service[] = [
       {
         name: "failover-service@file",
-        usedBy: ["failover-router@file"],
         status: "enabled",
         provider: "file",
         type: "failover",
+        failover: {
+          service: "primary-service@file",
+          fallback: "fallback-service@file",
+        },
       },
       {
         name: "primary-service@file",

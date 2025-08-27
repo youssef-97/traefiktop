@@ -23,10 +23,14 @@ export interface Service {
       timeout: string;
     };
   };
+  failover?: {
+    service: string;
+    fallback: string;
+  };
   status: string;
   serverStatus?: { [key: string]: string };
-  usedBy: string[];
+  usedBy?: string[];
   name: string;
   provider: string;
-  type: string;
+  type?: string;
 }
