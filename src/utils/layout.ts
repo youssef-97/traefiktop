@@ -46,7 +46,7 @@ export const getRouterItemHeight = (
     return cachedHeight;
   }
 
-  let height = 3; // Router name + rule + spacing = 3 lines (including marginBottom)
+  let height = 1; // Router name + rule + spacing = 3 lines (including marginBottom)
 
   // Use the same matching logic as RouterItem
   const routerServices = allServices.filter((s) => {

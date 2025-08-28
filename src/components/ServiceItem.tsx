@@ -58,7 +58,7 @@ const ServiceItem: React.FC<ServiceItemProps> = React.memo(
                 color={isUsingPrimary ? "green" : "gray"}
                 bold={isUsingPrimary}
               >
-                {isUsingPrimary ? "🡻 " : ""}
+                {isUsingPrimary ? "P " : ""}
                 {primary.name}
               </Text>{" "}
               {getStatusIndicator(primaryStatus)}
@@ -73,7 +73,7 @@ const ServiceItem: React.FC<ServiceItemProps> = React.memo(
                 color={!isUsingPrimary ? "yellow" : "gray"}
                 bold={!isUsingPrimary}
               >
-                {!isUsingPrimary ? "🡻 " : ""}
+                {!isUsingPrimary ? "P " : ""}
                 {fallback.name}
               </Text>{" "}
               {getStatusIndicator(fallbackStatus)}
@@ -92,15 +92,16 @@ const ServiceItem: React.FC<ServiceItemProps> = React.memo(
       "No servers";
 
     return (
-      <Text wrap="truncate-end">
-        {"  "}
-        {connector}{" "}
-        <Text color="white" bold>
-          {service.name}
-        </Text>{" "}
-        {getStatusIndicator(status)}
-        <Text color="gray"> {serverUrls}</Text>
-      </Text>
+        <Box flexDirection="column" width={terminalWidth}>
+            <Text wrap="truncate-end">
+                {"  "}
+                {connector}{" "}
+                <Text color="white" bold>
+                    {service.name}
+                </Text>{" "}
+                {getStatusIndicator(status)} <Text color="gray">{serverUrls}</Text>
+            </Text>
+        </Box>
     );
   },
 );

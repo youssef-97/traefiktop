@@ -58,7 +58,7 @@ const RoutersList: React.FC<RoutersListProps> = ({
 
   for (let i = state.topIndex; i < filteredRouters.length; i++) {
     const router = filteredRouters[i];
-    const itemHeight = getRouterItemHeight(router, allServices, terminalWidth);
+    const itemHeight = getRouterItemHeight(router, allServices);
 
     // Check if we need to reserve space for footer
     const needsFooter =
