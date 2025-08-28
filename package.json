@@ -4,6 +4,14 @@
   "version": "1.0.1",
   "private": false,
   "type": "module",
+  "bin": {
+    "traefiktop": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "dev": "bun src/main.tsx",
     "logs": "bun tools/logs.ts --session=latest",
