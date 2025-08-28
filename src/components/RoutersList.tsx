@@ -1,7 +1,7 @@
 import { Box, Text, useStdout } from "ink";
 import TextInput from "ink-text-input";
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTraefikData } from "../hooks/useTraefikData";
 import { useTui } from "../tui/useTui";
 import { getRouterItemHeight } from "../utils/layout";
@@ -34,8 +34,8 @@ const RoutersList: React.FC<RoutersListProps> = ({
     services: allServices,
     loading,
     error,
-    refresh,
-  } = useTraefikDataHook(apiUrl);
+    lastUpdated,
+  } = useTraefikDataHook(apiUrl) as any;
 
   // Calculate available screen space
   const headerHeight = 1; // Search bar
@@ -48,21 +48,19 @@ const RoutersList: React.FC<RoutersListProps> = ({
   // Calculate how many items can fit on screen for initial estimate
   // Get TUI state and filtered routers (must be called at top level)
   const [flash, setFlash] = useState<string | null>(null);
+  useEffect(() => {
+    if (lastUpdated) {
+      setFlash("Updated");
+      const id = setTimeout(() => setFlash(null), 1000);
+      return () => clearTimeout(id);
+    }
+  }, [lastUpdated]);
 
   const { state, dispatch, filteredRouters } = useTui(
     allRouters,
     allServices,
     availableHeight,
-    {
-      ignorePatterns,
-      onRefresh: () => {
-        try {
-          refresh();
-          setFlash("Refreshed");
-          setTimeout(() => setFlash(null), 1500);
-        } catch {}
-      },
-    },
+    { ignorePatterns },
   );
 
   if (loading) {
@@ -295,10 +293,9 @@ const RoutersList: React.FC<RoutersListProps> = ({
             {startIndex + visibleRouters.length} of {filteredRouters.length}{" "}
             {startIndex + visibleRouters.length < filteredRouters.length && "▼"}
           </Text>
-          <Text color="green">{flash ?? ""}</Text>
+          <Text dimColor>{flash ?? ""}</Text>
           <Text>
-            sort: {state.sortMode === "status" ? "dead" : "name"} • s: sort • r:
-            refresh
+            sort: {state.sortMode === "status" ? "dead" : "name"} • s: sort
           </Text>
         </Box>
       )}

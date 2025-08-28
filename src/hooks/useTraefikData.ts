@@ -9,6 +9,7 @@ export const useTraefikData = (apiUrl: string) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [refreshTick, setRefreshTick] = useState(0);
+  const [lastUpdated, setLastUpdated] = useState<number | null>(null);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: refreshTick intentionally triggers refetch
   useEffect(() => {
@@ -37,6 +38,7 @@ export const useTraefikData = (apiUrl: string) => {
       setRouters(routersResult.value);
       setServices(servicesResult.value);
       setLoading(false);
+      setLastUpdated(Date.now());
     };
 
     fetchData();
@@ -56,5 +58,5 @@ export const useTraefikData = (apiUrl: string) => {
     return () => clearInterval(id);
   }, [apiUrl]);
 
-  return { routers, services, loading, error, refresh };
+  return { routers, services, loading, error, refresh, lastUpdated };
 };
