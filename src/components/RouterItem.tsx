@@ -34,7 +34,7 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
         >
           <Text color="cyan">⬢</Text>{" "}
           <Text color="white" bold>
-            {router.name}
+            {router.name.trim()}
           </Text>
         </Text>
 

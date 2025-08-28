@@ -29,7 +29,7 @@ const RoutersList: React.FC<RoutersListProps> = ({
   // Calculate available screen space
   const headerHeight = 1; // Search bar
   const footerHeight = 1; // Navigation footer (only shown if scrolling needed)
-  const availableHeight = stdout.rows - headerHeight;
+  const availableHeight = stdout.rows - headerHeight - 1;
 
   // Calculate how many items can fit on screen for initial estimate
   const estimatedItemHeight = 3; // Average estimate for router + services
@@ -52,34 +52,58 @@ const RoutersList: React.FC<RoutersListProps> = ({
     return <Text>Error: {error.message}</Text>;
   }
 
-  // Calculate visible routers based on dynamic height and topIndex
-  const visibleRouters: typeof filteredRouters = [];
-  let usedLines = 0;
+  // Helper to build a window of visible routers starting at a given index
+  const buildWindow = (startIndex: number) => {
+    const windowRouters: typeof filteredRouters = [];
+    let windowUsedLines = 0;
 
-  for (let i = state.topIndex; i < filteredRouters.length; i++) {
-    const router = filteredRouters[i];
-    const itemHeight = getRouterItemHeight(router, allServices);
+    for (let i = startIndex; i < filteredRouters.length; i++) {
+      const router = filteredRouters[i];
+      const itemHeight = getRouterItemHeight(router, allServices);
 
-    // Check if we need to reserve space for footer
-    const needsFooter =
-      filteredRouters.length > 1 &&
-      (state.topIndex > 0 || i < filteredRouters.length - 1);
-    const maxUsableHeight = needsFooter
-      ? availableHeight - footerHeight
-      : availableHeight;
+      // Reserve space for footer only if there will be more items above or below
+      const needsFooter =
+        filteredRouters.length > 1 && (startIndex > 0 || i < filteredRouters.length - 1);
+      const maxUsableHeight = needsFooter
+        ? availableHeight - footerHeight
+        : availableHeight;
 
-    if (usedLines + itemHeight > maxUsableHeight) {
-      break; // This item would overflow the screen
+      if (windowUsedLines + itemHeight > maxUsableHeight) {
+        break;
+      }
+
+      windowRouters.push(router);
+      windowUsedLines += itemHeight;
     }
 
-    visibleRouters.push(router);
-    usedLines += itemHeight;
+    // Ensure at least one item is visible (even if it overflows on very small screens)
+    if (windowRouters.length === 0 && filteredRouters.length > 0 && startIndex < filteredRouters.length) {
+      windowRouters.push(filteredRouters[startIndex]);
+    }
+
+    return { windowRouters, windowUsedLines };
+  };
+
+  // First, build from the current topIndex
+  let startIndex = Math.min(state.topIndex, Math.max(0, filteredRouters.length - 1));
+  let { windowRouters: visibleRouters, windowUsedLines } = buildWindow(startIndex);
+
+  // If the selected router is not within the window (e.g., due to dynamic heights),
+  // rebuild the window anchored at the selected item so it becomes visible.
+  const lastAbsoluteIndex = startIndex + visibleRouters.length - 1;
+  if (
+    filteredRouters.length > 0 &&
+    (state.selectedRouter < startIndex || state.selectedRouter > lastAbsoluteIndex)
+  ) {
+    startIndex = Math.min(state.selectedRouter, Math.max(0, filteredRouters.length - 1));
+    ({ windowRouters: visibleRouters, windowUsedLines } = buildWindow(startIndex));
   }
 
-  // Ensure at least one item is visible (even if it overflows on very small screens)
-  if (visibleRouters.length === 0 && filteredRouters.length > 0) {
-    visibleRouters.push(filteredRouters[state.topIndex]);
-  }
+  const shouldShowFooter = filteredRouters.length > visibleRouters.length;
+  const spacerHeight = Math.max(
+    0,
+    availableHeight - (shouldShowFooter ? footerHeight : 0) - windowUsedLines,
+  );
 
   return (
     <Box flexDirection="column">
@@ -102,7 +126,7 @@ const RoutersList: React.FC<RoutersListProps> = ({
 
       {/* Content */}
       {visibleRouters.map((router, index) => {
-        const absoluteIndex = state.topIndex + index;
+        const absoluteIndex = startIndex + index;
         const isLast = index === visibleRouters.length - 1;
         return (
           <RouterItem
@@ -116,13 +140,16 @@ const RoutersList: React.FC<RoutersListProps> = ({
         );
       })}
 
+      {/* Spacer to push footer to bottom */}
+      {spacerHeight > 0 && <Box height={spacerHeight} />}
+
       {/* Footer with navigation info */}
-      {filteredRouters.length > visibleRouters.length && (
+      {shouldShowFooter && (
         <Box justifyContent="center" backgroundColor="gray">
           <Text>
-            {state.topIndex > 0 && "▲"} {state.topIndex + 1}-
-            {state.topIndex + visibleRouters.length} of {filteredRouters.length}{" "}
-            {state.topIndex + visibleRouters.length < filteredRouters.length &&
+            {startIndex > 0 && "▲"} {startIndex + 1}-
+            {startIndex + visibleRouters.length} of {filteredRouters.length}{" "}
+            {startIndex + visibleRouters.length < filteredRouters.length &&
               "▼"}
           </Text>
         </Box>

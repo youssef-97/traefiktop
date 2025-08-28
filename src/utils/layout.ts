@@ -66,28 +66,3 @@ export const getRouterItemHeight = (
   return height;
 };
 
-export const getServiceNamesFromRouter = (
-  router: Router,
-  allServices: Service[],
-): Set<string> => {
-  const serviceNames = new Set<string>();
-  serviceNames.add(router.service); // Add the router's main service
-
-  const routerServices = allServices.filter((s) =>
-    s.usedBy?.includes(router.name),
-  );
-
-  routerServices.forEach((service) => {
-    serviceNames.add(service.name);
-    if (service.type === "failover" && service.failover) {
-      if (service.failover.service) {
-        serviceNames.add(service.failover.service);
-      }
-      if (service.failover.fallback) {
-        serviceNames.add(service.failover.fallback);
-      }
-    }
-  });
-
-  return serviceNames;
-};
