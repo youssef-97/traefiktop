@@ -14,6 +14,11 @@
 
 A simple, keyboard‑friendly terminal UI for exploring Traefik routers and services. Built with React + Ink, focused on clarity over chrome.
 
+## Screenshot
+
+<!-- Replace with a real TUI screenshot or GIF -->
+![traefiktop screenshot](assets/screenshot.png)
+
 ## What it shows
 - Routers, their rules, and the services they target
 - Which router is effectively down (no healthy services)
