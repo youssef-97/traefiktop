@@ -8,10 +8,13 @@ export const useTraefikData = (apiUrl: string) => {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [refreshTick, setRefreshTick] = useState(0);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: refreshTick intentionally triggers refetch
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      setError(null);
       const [routersResult, servicesResult] = await Promise.all([
         getRouters(apiUrl),
         getServices(apiUrl),
@@ -41,7 +44,7 @@ export const useTraefikData = (apiUrl: string) => {
     // Disabled auto-refresh for now to prevent excessive API calls
     // const intervalId = setInterval(fetchData, 5000); // Refresh every 5 seconds
     // return () => clearInterval(intervalId); // Cleanup on unmount
-  }, [apiUrl]);
-
-  return { routers, services, loading, error };
+  }, [apiUrl, refreshTick]);
+  const refresh = () => setRefreshTick((n) => n + 1);
+  return { routers, services, loading, error, refresh };
 };

@@ -10,7 +10,7 @@ export const useTui = (
   routers: Router[],
   services: Service[],
   availableHeight: number,
-  options?: { ignorePatterns?: string[] },
+  options?: { ignorePatterns?: string[]; onRefresh?: () => void },
 ) => {
   const [state, dispatch] = useReducer(tuiReducer, initialState);
   const ignore = (options?.ignorePatterns || []).map((s) => s.toLowerCase());
@@ -113,6 +113,11 @@ export const useTui = (
     if (state.mode === "normal") {
       if (input === "/") {
         dispatch({ type: "SET_MODE", payload: "search" });
+        return;
+      }
+
+      if (input === "r" || input === "R") {
+        options?.onRefresh?.();
         return;
       }
 

@@ -33,6 +33,7 @@ const RoutersList: React.FC<RoutersListProps> = ({
     services: allServices,
     loading,
     error,
+    refresh,
   } = useTraefikDataHook(apiUrl);
 
   // Calculate available screen space
@@ -49,7 +50,7 @@ const RoutersList: React.FC<RoutersListProps> = ({
     allRouters,
     allServices,
     availableHeight,
-    { ignorePatterns },
+    { ignorePatterns, onRefresh: refresh },
   );
 
   if (loading) {
