@@ -265,7 +265,7 @@ export class DefaultAppOrchestrator implements AppOrchestrator {
   ): void {
     dispatch({ type: "SET_SERVER", payload: null });
     statusLog.error(
-      "please use argocd login to authenticate before running argonaut",
+      "please use argocd login to authenticate before running traefik-tui",
       "auth",
     );
     dispatch({ type: "SET_MODE", payload: "auth-required" });

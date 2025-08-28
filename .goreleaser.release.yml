@@ -1,19 +1,18 @@
 version: 2
 
-project_name: argonaut
+project_name: traefik-tui
 
 # Global hooks (run once before all builds)
 before:
   hooks:
-    - bun install --frozen-lockfile 
-    - bun run generate:licenses
+    - bun install --frozen-lockfile
     - rm -rf dist
 
 # Build with Bun (bun build --compile)
 builds:
   - id: bun-standard
     builder: bun
-    binary: argonaut
+    binary: traefik-tui
     main: src/main.tsx
     targets:
       - linux-x64-modern
@@ -23,7 +22,7 @@ builds:
 
   - id: bun-musl
     builder: bun
-    binary: argonaut
+    binary: traefik-tui
     main: src/main.tsx
     targets:
       - linux-x64-musl-modern
@@ -49,28 +48,26 @@ archives:
       - README*
       - CHANGELOG*
 
-# macOS distribution via Homebrew Casks (Formulas are deprecated)
 homebrew_casks:
-  - name: argonaut
-    description: A GitOps CLI tool for managing ArgoCD applications
-    homepage: https://github.com/darksworm/argonaut
-    ids: [bun-archives-standard]    # use the standard archives (macOS is not musl)
-    binary: argonaut       # the binary name inside the archive
+  - name: traefik-tui
+    description: A TUI for visualizing Traefik routing
+    homepage: https://github.com/darksworm/traefik-tui
+    ids: [bun-archives-standard]
+    binary: traefik-tui
     repository:
       owner: darksworm
       name: homebrew-tap
       branch: main
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
-    # If you don't sign/notarize, consider removing quarantine on install:
     hooks:
       post:
         install: |
           if OS.mac?
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/argonaut"]
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/traefik-tui"]
           end
     caveats: |
       To get started:
-        argonaut --help
+        traefik-tui --help
 
 # Release config
 release:
@@ -109,32 +106,33 @@ changelog:
     - title: "Other Changes"
       order: 999
 
-# Checksums for all artifacts
 checksum:
   name_template: "checksums.txt"
 
 aurs:
-  - name: argonaut-bin
-    description: A GitOps CLI tool for managing ArgoCD applications
-    homepage: https://github.com/darksworm/argonaut
+  - name: traefik-tui-bin
+    description: A TUI for visualizing Traefik routing
+    homepage: https://github.com/darksworm/traefik-tui
     private_key: "{{ .Env.AUR_SSH_PRIVATE_KEY }}"
-    git_url: ssh://aur@aur.archlinux.org/argonaut-bin.git
-    provides: [argonaut]
-    conflicts: [argonaut]
+    git_url: ssh://aur@aur.archlinux.org/traefik-tui-bin.git
+    provides: [traefik-tui]
+    conflicts: [traefik-tui]
     skip_upload: false
     commit_msg_template: "upgpkg: {{ .ProjectName }} {{ .Version }}"
     package: |
-      _binname="argonaut"
-      install -Dm755 "./${_binname}" "${pkgdir}/usr/bin/argonaut"
-      install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/argonaut/LICENSE"
-      install -Dm644 "./README.md" "${pkgdir}/usr/share/doc/argonaut/README.md"
-      install -Dm644 "./CHANGELOG.md" "${pkgdir}/usr/share/doc/argonaut/CHANGELOG.md"
+      _binname="traefik-tui"
+      install -Dm755 "./${_binname}" "${pkgdir}/usr/bin/${_binname}"
+      install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/${_binname}/LICENSE"
+      install -Dm644 "./README.md" "${pkgdir}/usr/share/doc/${_binname}/README.md"
+      if [ -f "./CHANGELOG.md" ]; then
+        install -Dm644 "./CHANGELOG.md" "${pkgdir}/usr/share/doc/${_binname}/CHANGELOG.md"
+      fi
     commit_author:
       name: goreleaser
       email: bot@goreleaser.com
 
 nix:
-  - name: argonaut
+  - name: traefik-tui
     ids: [ bun-archives-standard ]
     goamd64: v1
     repository:
@@ -150,25 +148,25 @@ nfpms:
     bindir: /usr/bin
     file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     maintainer: "darksworm <bot@goreleaser.com>"
-    homepage: "https://github.com/darksworm/argonaut"
-    description: "A CLI tool for managing Argo CD applications"
+    homepage: "https://github.com/darksworm/traefik-tui"
+    description: "A TUI for visualizing Traefik routing"
     license: GPL-3.0-or-later
     section: utils
     priority: optional
-    provides: [argonaut]
-    conflicts: [argonaut, argonaut-musl]
+    provides: [traefik-tui]
+    conflicts: [traefik-tui, traefik-tui-musl]
 
   - id: linux-packages-musl
     ids: [bun-musl]
     formats: [deb, rpm, apk]
     bindir: /usr/bin
     file_name_template: "{{ .ProjectName }}-musl_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    package_name: "argonaut-musl"
+    package_name: "traefik-tui-musl"
     maintainer: "darksworm <bot@goreleaser.com>"
-    homepage: "https://github.com/darksworm/argonaut"
-    description: "A CLI tool for managing Argo CD applications (musl build)"
+    homepage: "https://github.com/darksworm/traefik-tui"
+    description: "A TUI for visualizing Traefik routing (musl build)"
     license: GPL-3.0-or-later
     section: utils
     priority: optional
-    provides: [argonaut]
-    conflicts: [argonaut, argonaut-standard]
+    provides: [traefik-tui]
+    conflicts: [traefik-tui, traefik-tui-standard]

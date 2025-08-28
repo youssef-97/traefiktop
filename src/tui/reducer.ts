@@ -36,16 +36,28 @@ export type TuiAction =
     }
   | {
       type: "PAGE_DOWN";
-      payload: { heights: number[]; availableHeight: number; footerHeight: number };
+      payload: {
+        heights: number[];
+        availableHeight: number;
+        footerHeight: number;
+      };
     }
   | {
       type: "PAGE_UP";
-      payload: { heights: number[]; availableHeight: number; footerHeight: number };
+      payload: {
+        heights: number[];
+        availableHeight: number;
+        footerHeight: number;
+      };
     }
   | { type: "GO_TOP" }
   | {
       type: "GO_BOTTOM";
-      payload: { heights: number[]; availableHeight: number; footerHeight: number };
+      payload: {
+        heights: number[];
+        availableHeight: number;
+        footerHeight: number;
+      };
     };
 
 export const initialState: TuiState = {
@@ -86,7 +98,12 @@ export const tuiReducer = produce((draft: TuiState, action: TuiAction) => {
     availableHeight: number,
     footerHeight: number,
   ) => {
-    const end = computeWindowEnd(topIndex, heights, availableHeight, footerHeight);
+    const end = computeWindowEnd(
+      topIndex,
+      heights,
+      availableHeight,
+      footerHeight,
+    );
     if (targetIndex < topIndex || targetIndex > end) return false;
     // Quick check for clipping: ensure that if target is the last in window, it still fits entirely
     // We recompute used height up to target.
@@ -105,7 +122,7 @@ export const tuiReducer = produce((draft: TuiState, action: TuiAction) => {
 
   const adjustTopForIndex = (
     targetIndex: number,
-    currentTop: number,
+    _currentTop: number,
     heights: number[],
     availableHeight: number,
     footerHeight: number,
@@ -115,7 +132,15 @@ export const tuiReducer = produce((draft: TuiState, action: TuiAction) => {
     // Walk upwards while we can still include target fully
     while (top > 0) {
       const candidate = top - 1;
-      if (includesIndexFully(targetIndex, candidate, heights, availableHeight, footerHeight)) {
+      if (
+        includesIndexFully(
+          targetIndex,
+          candidate,
+          heights,
+          availableHeight,
+          footerHeight,
+        )
+      ) {
         top = candidate;
       } else {
         break;
@@ -154,8 +179,16 @@ export const tuiReducer = produce((draft: TuiState, action: TuiAction) => {
         const newIndex = draft.selectedRouter + 1;
         // If moving down goes out of view, bump topIndex until fully visible
         let top = draft.topIndex;
-        while (!includesIndexFully(newIndex, top, heights, availableHeight, footerHeight) &&
-               top < newIndex) {
+        while (
+          !includesIndexFully(
+            newIndex,
+            top,
+            heights,
+            availableHeight,
+            footerHeight,
+          ) &&
+          top < newIndex
+        ) {
           top += 1;
         }
         draft.topIndex = top;
@@ -169,7 +202,16 @@ export const tuiReducer = produce((draft: TuiState, action: TuiAction) => {
         const newIndex = draft.selectedRouter - 1;
         // If moving up goes out of view, reduce topIndex until fully visible
         let top = draft.topIndex;
-        while (!includesIndexFully(newIndex, top, heights, availableHeight, footerHeight) && top > 0) {
+        while (
+          !includesIndexFully(
+            newIndex,
+            top,
+            heights,
+            availableHeight,
+            footerHeight,
+          ) &&
+          top > 0
+        ) {
           top -= 1;
         }
         draft.topIndex = top;
@@ -178,13 +220,24 @@ export const tuiReducer = produce((draft: TuiState, action: TuiAction) => {
       break;
     case "PAGE_DOWN": {
       const { heights, availableHeight, footerHeight } = action.payload;
-      const end = computeWindowEnd(draft.topIndex, heights, availableHeight, footerHeight);
+      const end = computeWindowEnd(
+        draft.topIndex,
+        heights,
+        availableHeight,
+        footerHeight,
+      );
       // Move selection to end of current window
       draft.selectedRouter = end;
       // Prepare next window start if possible
       if (end < heights.length - 1) {
         const nextTop = end + 1;
-        draft.topIndex = adjustTopForIndex(Math.min(heights.length - 1, nextTop + 1), nextTop, heights, availableHeight, footerHeight);
+        draft.topIndex = adjustTopForIndex(
+          Math.min(heights.length - 1, nextTop + 1),
+          nextTop,
+          heights,
+          availableHeight,
+          footerHeight,
+        );
       }
       break;
     }
@@ -195,7 +248,13 @@ export const tuiReducer = produce((draft: TuiState, action: TuiAction) => {
       // Move window up by trying to show more above
       if (draft.topIndex > 0) {
         const prevTop = Math.max(0, draft.topIndex - 1);
-        draft.topIndex = adjustTopForIndex(prevTop, prevTop, heights, availableHeight, footerHeight);
+        draft.topIndex = adjustTopForIndex(
+          prevTop,
+          prevTop,
+          heights,
+          availableHeight,
+          footerHeight,
+        );
       }
       break;
     }
@@ -207,7 +266,13 @@ export const tuiReducer = produce((draft: TuiState, action: TuiAction) => {
       const { heights, availableHeight, footerHeight } = action.payload;
       const last = heights.length - 1;
       draft.selectedRouter = Math.max(0, last);
-      draft.topIndex = adjustTopForIndex(last, last, heights, availableHeight, footerHeight);
+      draft.topIndex = adjustTopForIndex(
+        last,
+        last,
+        heights,
+        availableHeight,
+        footerHeight,
+      );
       break;
     }
   }

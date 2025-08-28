@@ -15,7 +15,15 @@ interface ServiceItemProps {
 }
 
 const ServiceItem: React.FC<ServiceItemProps> = React.memo(
-  ({ service, services, terminalWidth, isLast = false, maxLines, cutFrom = "bottom", isActiveForRouter = false }) => {
+  ({
+    service,
+    services,
+    terminalWidth,
+    isLast = false,
+    maxLines,
+    cutFrom = "bottom",
+    isActiveForRouter = false,
+  }) => {
     const status = getServiceStatus(service, services, new Set());
     const connector = isLast ? "└──" : "├──";
 
@@ -34,70 +42,74 @@ const ServiceItem: React.FC<ServiceItemProps> = React.memo(
     // Minimal presentation; no per-service counts here to reduce noise
 
     if (service.type === "failover") {
-          // Build lines for a failover service
-          const { primary, fallback } = getFailoverServices(service.name, services);
-          const primaryStatus = primary
-            ? getServiceStatus(primary, services, new Set())
-            : "UNKNOWN";
-          const fallbackStatus = fallback
-            ? getServiceStatus(fallback, services, new Set())
-            : "UNKNOWN";
+      // Build lines for a failover service
+      const { primary, fallback } = getFailoverServices(service.name, services);
+      const primaryStatus = primary
+        ? getServiceStatus(primary, services, new Set())
+        : "UNKNOWN";
+      const fallbackStatus = fallback
+        ? getServiceStatus(fallback, services, new Set())
+        : "UNKNOWN";
 
-          const isUsingPrimary = primaryStatus === "UP";
+      const isUsingPrimary = primaryStatus === "UP";
 
-          const lines: React.ReactNode[] = [];
-          // Header line
-          lines.push(
-            <Text wrap="truncate-end" key="fo-header">
-              {"  "}
-              {connector}{" "}
-              <Text color="magenta" dimColor>
-                {service.name}
-              </Text>{" "}
-              <Text color="magenta" dimColor>(failover)</Text>
-            </Text>,
-          );
-          if (primary) {
-            lines.push(
-              <Text
-                wrap="truncate-end"
-                key="fo-primary"
-                color={isUsingPrimary && primaryStatus !== "DOWN" ? undefined : "gray"}
-              >
-                {"  "}
-                {"  "}├── {statusEmoji(primaryStatus)} {primary.name.trim()}
-              </Text>,
-            );
-          }
-          if (fallback) {
-            lines.push(
-              <Text
-                wrap="truncate-end"
-                key="fo-fallback"
-                color={!isUsingPrimary && fallbackStatus !== "DOWN" ? undefined : "gray"}
-              >
-                {"  "}
-                {"  "}└── {statusEmoji(fallbackStatus)} {fallback.name.trim()}
-              </Text>,
-            );
-          }
+      const lines: React.ReactNode[] = [];
+      // Header line
+      lines.push(
+        <Text wrap="truncate-end" key="fo-header">
+          {"  "}
+          {connector}{" "}
+          <Text color="magenta" dimColor>
+            {service.name}
+          </Text>{" "}
+          <Text color="magenta" dimColor>
+            (failover)
+          </Text>
+        </Text>,
+      );
+      if (primary) {
+        lines.push(
+          <Text
+            wrap="truncate-end"
+            key="fo-primary"
+            color={isUsingPrimary ? undefined : "gray"}
+          >
+            {"  "}
+            {"  "}├── {statusEmoji(primaryStatus)} {primary.name.trim()}
+          </Text>,
+        );
+      }
+      if (fallback) {
+        lines.push(
+          <Text
+            wrap="truncate-end"
+            key="fo-fallback"
+            color={!isUsingPrimary ? undefined : "gray"}
+          >
+            {"  "}
+            {"  "}└── {statusEmoji(fallbackStatus)} {fallback.name.trim()}
+          </Text>,
+        );
+      }
 
-          // Apply partial slicing if requested
-          const renderLines = (maxLines && maxLines >= 0) ? (() => {
-            if (maxLines === undefined) return lines;
-            if (maxLines === 0) return [] as React.ReactNode[];
-            if (cutFrom === "top") return lines.slice(Math.max(0, lines.length - maxLines));
-            return lines.slice(0, Math.min(lines.length, maxLines));
-          })() : lines;
+      // Apply partial slicing if requested
+      const renderLines =
+        maxLines && maxLines >= 0
+          ? (() => {
+              if (maxLines === undefined) return lines;
+              if (maxLines === 0) return [] as React.ReactNode[];
+              if (cutFrom === "top")
+                return lines.slice(Math.max(0, lines.length - maxLines));
+              return lines.slice(0, Math.min(lines.length, maxLines));
+            })()
+          : lines;
 
-          return (
-            <Box flexDirection="column" width={terminalWidth}>
-              {renderLines.map((node, idx) => (
-                <React.Fragment key={idx}>{node}</React.Fragment>
-              ))}
-            </Box>
-          );
-        }
+      return (
+        <Box flexDirection="column" width={terminalWidth}>
+          {renderLines}
+        </Box>
+      );
+    }
 
     // Regular service
     // Simplify: omit URLs to reduce visual noise
@@ -106,7 +118,10 @@ const ServiceItem: React.FC<ServiceItemProps> = React.memo(
       return null;
     }
     return (
-      <Text wrap="truncate-end" color={isActiveForRouter && status !== "DOWN" ? undefined : "gray"}>
+      <Text
+        wrap="truncate-end"
+        color={isActiveForRouter && status !== "DOWN" ? undefined : "gray"}
+      >
         {"  "}
         {connector} {statusEmoji(status)}
         {service.name.trim()}

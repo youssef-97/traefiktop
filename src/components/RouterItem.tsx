@@ -1,10 +1,10 @@
 import { Box, Text } from "ink";
 import React from "react";
-import type { Router, Service } from "../types/traefik";
-import ServiceItem from "./ServiceItem";
-import { getRouterItemHeight, getServiceItemHeight } from "../utils/layout";
-import { getServiceStatus, type ServiceStatus } from "../logic/status";
 import { getFailoverServices } from "../logic/failover";
+import { getServiceStatus, type ServiceStatus } from "../logic/status";
+import type { Router, Service } from "../types/traefik";
+import { getRouterItemHeight, getServiceItemHeight } from "../utils/layout";
+import ServiceItem from "./ServiceItem";
 
 interface RouterItemProps {
   router: Router;
@@ -17,7 +17,15 @@ interface RouterItemProps {
 }
 
 const RouterItem: React.FC<RouterItemProps> = React.memo(
-  ({ router, services, isSelected, terminalWidth, isLast, maxLines, cutFrom = "bottom" }) => {
+  ({
+    router,
+    services,
+    isSelected,
+    terminalWidth,
+    isLast,
+    maxLines,
+    cutFrom = "bottom",
+  }) => {
     const routerServices = services.filter((s) => {
       const escapedService = router.service.replace(
         /[.*+?^${}()|[\]\\]/g,
@@ -57,14 +65,16 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
         }
       }
     }
-    routerStatus = aliveCount > 0 ? "UP" : routerServices.length === 0 ? "UNKNOWN" : "DOWN";
+    routerStatus =
+      aliveCount > 0 ? "UP" : routerServices.length === 0 ? "UNKNOWN" : "DOWN";
     const isDown = routerStatus === "DOWN";
-    const selectedBg = isSelected ? (isDown ? "redBright" : "blueBright") : undefined;
+    const selectedBg = isSelected
+      ? isDown
+        ? "redBright"
+        : "blueBright"
+      : undefined;
     const nameColor = isSelected ? "white" : isDown ? "red" : "white";
     const iconColor = isSelected ? "white" : isDown ? undefined : "cyan";
-    const LeadingIcon: React.FC = () => (
-      <Text color={iconColor}>{isDown ? "💀" : "⬢ "}</Text>
-    );
 
     // If no partial rendering requested, render full item as before
     if (maxLines === undefined) {
@@ -76,7 +86,7 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
         >
           <Box width={terminalWidth} backgroundColor={selectedBg}>
             <Text wrap="truncate-end">
-              <LeadingIcon />
+              <Text color={iconColor}>{isDown ? "💀" : "⬢ "}</Text>
               <Text color={nameColor} bold>
                 {router.name.trim()}
               </Text>
@@ -95,7 +105,10 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
               services={services}
               terminalWidth={terminalWidth}
               isLast={index === routerServices.length - 1}
-              isActiveForRouter={service.type !== "failover" && activeServiceName === service.name}
+              isActiveForRouter={
+                service.type !== "failover" &&
+                activeServiceName === service.name
+              }
             />
           ))}
         </Box>
@@ -127,14 +140,18 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
 
     // Header line
     pushLine(
-      <Box width={terminalWidth} backgroundColor={selectedBg} key="router-header">
+      <Box
+        width={terminalWidth}
+        backgroundColor={selectedBg}
+        key="router-header"
+      >
         <Text wrap="truncate-end">
-          <LeadingIcon />
+          <Text color={iconColor}>{isDown ? "💀" : "⬢ "}</Text>
           <Text color={nameColor} bold>
             {router.name.trim()}
           </Text>
         </Text>
-      </Box>
+      </Box>,
     );
 
     // Rule line
@@ -142,12 +159,16 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
       <Text color="gray" wrap="truncate-end" key="router-rule">
         {"  "}
         <Text color="yellow">→</Text> {router.rule.trim()}
-      </Text>
+      </Text>,
     );
 
     // Services lines
     if (remaining > 0 || skip > 0) {
-      for (let i = 0; i < routerServices.length && (remaining > 0 || skip > 0); i++) {
+      for (
+        let i = 0;
+        i < routerServices.length && (remaining > 0 || skip > 0);
+        i++
+      ) {
         const service = routerServices[i];
         const isServiceLast = i === routerServices.length - 1;
         const svcHeight = getServiceItemHeight(service, services);
@@ -158,8 +179,11 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
         }
 
         // Calculate how many lines we can render for this service
-        const svcAvailable = renderTop ? (svcHeight - skip) : remaining;
-        const svcMaxLines = Math.min(renderTop ? svcAvailable : remaining, svcHeight);
+        const svcAvailable = renderTop ? svcHeight - skip : remaining;
+        const svcMaxLines = Math.min(
+          renderTop ? svcAvailable : remaining,
+          svcHeight,
+        );
         const svcCutFrom = renderTop && skip > 0 ? "top" : "bottom";
 
         lines.push(
@@ -171,8 +195,10 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
             isLast={isServiceLast}
             maxLines={svcMaxLines}
             cutFrom={svcCutFrom as any}
-            isActiveForRouter={service.type !== "failover" && activeServiceName === service.name}
-          />
+            isActiveForRouter={
+              service.type !== "failover" && activeServiceName === service.name
+            }
+          />,
         );
 
         if (renderTop) {
@@ -188,10 +214,12 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
     }
 
     return (
-      <Box flexDirection="column" width={terminalWidth} marginBottom={isLast ? 0 : 1}>
-        {lines.map((node, idx) => (
-          <React.Fragment key={idx}>{node}</React.Fragment>
-        ))}
+      <Box
+        flexDirection="column"
+        width={terminalWidth}
+        marginBottom={isLast ? 0 : 1}
+      >
+        {lines}
       </Box>
     );
   },

@@ -1,22 +1,46 @@
 import { useInput } from "ink";
-import { useReducer, useMemo, useRef } from "react";
-import type { Router } from "../types/traefik";
-import { initialState, tuiReducer } from "./reducer";
-import type { Service } from "../types/traefik";
-import { getRouterItemHeight } from "../utils/layout";
-import { getServiceStatus } from "../logic/status";
+import { useMemo, useReducer, useRef } from "react";
 import { getFailoverServices } from "../logic/failover";
+import { getServiceStatus } from "../logic/status";
+import type { Router, Service } from "../types/traefik";
+import { getRouterItemHeight } from "../utils/layout";
+import { initialState, tuiReducer } from "./reducer";
 
 export const useTui = (
   routers: Router[],
   services: Service[],
   availableHeight: number,
+  options?: { ignorePatterns?: string[] },
 ) => {
   const [state, dispatch] = useReducer(tuiReducer, initialState);
+  const ignore = (options?.ignorePatterns || []).map((s) => s.toLowerCase());
 
-  const filteredRouters = routers.filter((router) =>
-    router.name.toLowerCase().includes(state.searchQuery.toLowerCase()),
-  );
+  const filteredRouters = routers.filter((router) => {
+    const name = router.name.toLowerCase();
+    if (ignore.length > 0) {
+      const shouldIgnore = ignore.some((p) => {
+        if (!p) return false;
+        if (p === "*") return true;
+        const startsStar = p.startsWith("*");
+        const endsStar = p.endsWith("*");
+        if (startsStar && endsStar && p.length > 2) {
+          const inner = p.slice(1, -1);
+          return name.includes(inner);
+        }
+        if (startsStar) {
+          const inner = p.slice(1);
+          return inner.length > 0 && name.endsWith(inner);
+        }
+        if (endsStar) {
+          const inner = p.slice(0, -1);
+          return inner.length > 0 && name.startsWith(inner);
+        }
+        return name.includes(p);
+      });
+      if (shouldIgnore) return false;
+    }
+    return name.includes(state.searchQuery.toLowerCase());
+  });
 
   // Determine router status for sorting: DOWN if has services but none UP; UP if any UP; else UNKNOWN
   const routerStatus = useMemo(() => {
@@ -30,15 +54,20 @@ export const useTui = (
       for (const s of matched) {
         if (s.type === "failover" && s.failover) {
           const { primary, fallback } = getFailoverServices(s.name, services);
-          const ps = primary ? getServiceStatus(primary, services, new Set()) : "UNKNOWN";
-          const fs = fallback ? getServiceStatus(fallback, services, new Set()) : "UNKNOWN";
+          const ps = primary
+            ? getServiceStatus(primary, services, new Set())
+            : "UNKNOWN";
+          const fs = fallback
+            ? getServiceStatus(fallback, services, new Set())
+            : "UNKNOWN";
           if (ps === "UP" || fs === "UP") alive += 1;
         } else {
           const st = getServiceStatus(s, services, new Set());
           if (st === "UP") alive += 1;
         }
       }
-      const status: "UP" | "DOWN" | "UNKNOWN" = matched.length === 0 ? "UNKNOWN" : alive > 0 ? "UP" : "DOWN";
+      const status: "UP" | "DOWN" | "UNKNOWN" =
+        matched.length === 0 ? "UNKNOWN" : alive > 0 ? "UP" : "DOWN";
       statusMap.set(r.name, status);
     }
     return statusMap;
@@ -81,25 +110,25 @@ export const useTui = (
       process.exit(0);
     }
 
-      if (state.mode === "normal") {
-        if (input === "/") {
-          dispatch({ type: "SET_MODE", payload: "search" });
-          return;
-        }
+    if (state.mode === "normal") {
+      if (input === "/") {
+        dispatch({ type: "SET_MODE", payload: "search" });
+        return;
+      }
 
-        // Sorting controls
-        if (input === "s") {
-          dispatch({ type: "TOGGLE_SORT_MODE" });
-          return;
-        }
-        if (input === "n" || input === "N") {
-          dispatch({ type: "SET_SORT_MODE", payload: "name" });
-          return;
-        }
-        if (input === "d" || input === "D") {
-          dispatch({ type: "SET_SORT_MODE", payload: "status" });
-          return;
-        }
+      // Sorting controls
+      if (input === "s") {
+        dispatch({ type: "TOGGLE_SORT_MODE" });
+        return;
+      }
+      if (input === "n" || input === "N") {
+        dispatch({ type: "SET_SORT_MODE", payload: "name" });
+        return;
+      }
+      if (input === "d" || input === "D") {
+        dispatch({ type: "SET_SORT_MODE", payload: "status" });
+        return;
+      }
 
       if (key.upArrow || input === "k") {
         dispatch({
@@ -126,7 +155,11 @@ export const useTui = (
       }
 
       // PageDown: try key.pageDown, Ctrl+f, or space
-      if ((key as any).pageDown || (key.ctrl && input === "f") || input === " ") {
+      if (
+        (key as any).pageDown ||
+        (key.ctrl && input === "f") ||
+        input === " "
+      ) {
         dispatch({
           type: "PAGE_DOWN",
           payload: { heights, availableHeight, footerHeight },
@@ -155,7 +188,11 @@ export const useTui = (
       // Vim-style gg (go top) and G (go bottom)
       if (input === "g") {
         const now = Date.now();
-        if (lastKeyRef.current && lastKeyRef.current.key === "g" && now - lastKeyRef.current.ts < 600) {
+        if (
+          lastKeyRef.current &&
+          lastKeyRef.current.key === "g" &&
+          now - lastKeyRef.current.ts < 600
+        ) {
           dispatch({ type: "GO_TOP" });
           lastKeyRef.current = null;
         } else {

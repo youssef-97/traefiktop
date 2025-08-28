@@ -57,6 +57,58 @@ function setupAlternateScreen() {
 }
 
 async function main() {
+  const args = process.argv.slice(2);
+  let apiUrl: string | undefined;
+  const ignorePatterns: string[] = [];
+
+  const pushIgnore = (val?: string) => {
+    if (!val) return;
+    val
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .forEach((s) => {
+        ignorePatterns.push(s);
+      });
+  };
+
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a === "--help" || a === "-h") {
+      console.log(
+        "Usage: traefik-tui --host <url> [--ignore <pat>[,<pat>...]] [--ignore <pat>]...",
+      );
+      console.log(
+        "  --host     REQUIRED. Traefik API base URL (e.g. https://traefik.local)",
+      );
+      console.log(
+        "  --ignore   Hide routers by name (case-insensitive). Supports '*prefix', 'suffix*', and '*contains*'.",
+      );
+      process.exit(0);
+    }
+    if (a === "--host" || a === "--api-url") {
+      apiUrl = args[i + 1] || apiUrl;
+      i += 1;
+      continue;
+    }
+    if (a.startsWith("--host=")) {
+      apiUrl = a.split("=")[1] || apiUrl;
+      continue;
+    }
+    if (a === "--ignore") {
+      pushIgnore(args[i + 1]);
+      i += 1;
+      continue;
+    }
+    if (a.startsWith("--ignore=")) {
+      pushIgnore(a.split("=")[1]);
+    }
+  }
+
+  if (!apiUrl) {
+    console.error("Error: --host <url> is required. See --help for usage.");
+    process.exit(1);
+  }
   // Initialize logger for normal app mode
   const loggerResult = await initializeLogger();
   if (loggerResult.isErr()) {
@@ -100,7 +152,7 @@ async function main() {
   try {
     render(
       <ErrorBoundary>
-        <RoutersList apiUrl="https://traefik.penneo.devel" />
+        <RoutersList apiUrl={apiUrl} ignorePatterns={ignorePatterns} />
       </ErrorBoundary>,
       {
         stdout: mutableStdout as any,

@@ -23,8 +23,8 @@ for cmd in mktemp install; do
   fi
 done
 
-REPO="darksworm/argonaut"
-BIN="argonaut"
+REPO="darksworm/traefik-tui"
+BIN="traefik-tui"
 VERSION="${1:-}"
 INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
 
@@ -88,7 +88,7 @@ echo "Downloading $url..."
 if command -v mktemp >/dev/null 2>&1; then
   tmp="$(mktemp -d)"
 else
-  tmp="/tmp/argonaut-install-$$"
+  tmp="/tmp/traefik-tui-install-$$"
   mkdir -p "$tmp"
 fi
 trap 'rm -rf "$tmp"' EXIT INT TERM

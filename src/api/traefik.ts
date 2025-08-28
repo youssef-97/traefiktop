@@ -28,35 +28,33 @@ const FailoverConfigSchema = yup.object({
   fallback: yup.string().required(),
 });
 
-// Main Service Schema
-export const ServiceSchema = yup
-  .array(
-    yup.object({
-      status: yup.string().required(),
-      name: yup.string().required(),
-      provider: yup.string().required(),
-      usedBy: yup.array(yup.string()).optional(),
-      type: yup.string().optional(), // Make type optional for generic services
-      loadBalancer: LoadBalancerSchema.optional(),
-      failover: FailoverConfigSchema.optional(),
-      serverStatus: yup
-        .object()
-        .test(
-          "is-record",
-          "serverStatus must be a record of strings",
-          (value) => {
-            if (value === undefined) return true;
-            return (
-              typeof value === "object" &&
-              value !== null &&
-              Object.values(value).every((v) => typeof v === "string")
-            );
-          },
-        )
-        .optional(),
-    }),
-  )
-  .required();
+// Service Schemas
+export const ServiceItemSchema = yup.object({
+  status: yup.string().required(),
+  name: yup.string().required(),
+  provider: yup.string().required(),
+  usedBy: yup.array(yup.string()).optional(),
+  type: yup.string().optional(), // Make type optional for generic services
+  loadBalancer: LoadBalancerSchema.optional(),
+  failover: FailoverConfigSchema.optional(),
+  serverStatus: yup
+    .object()
+    .test(
+      "is-record",
+      "serverStatus must be a record of strings",
+      (value) => {
+        if (value === undefined) return true;
+        return (
+          typeof value === "object" &&
+          value !== null &&
+          Object.values(value).every((v) => typeof v === "string")
+        );
+      },
+    )
+    .optional(),
+});
+
+export const ServiceSchema = yup.array(ServiceItemSchema).required();
 
 // Router Schema
 export const RouterSchema = yup
@@ -104,9 +102,9 @@ const fetchTraefikData = <_T>(url: string): ResultAsync<any[], Error> => {
 };
 
 export const getRouters = (apiUrl: string): ResultAsync<Router[], Error> =>
-  fetchTraefikData(`${apiUrl}/api/http/routers`).andThen(async (data) => {
+  fetchTraefikData(`${apiUrl}/api/http/routers`).andThen((data) => {
     try {
-      const parsedRouters = await RouterSchema.validate(data, {
+      const parsedRouters = RouterSchema.validateSync(data, {
         strict: true,
         abortEarly: false,
       });
@@ -122,9 +120,9 @@ export const getRouters = (apiUrl: string): ResultAsync<Router[], Error> =>
   });
 
 export const getServices = (apiUrl: string): ResultAsync<Service[], Error> =>
-  fetchTraefikData(`${apiUrl}/api/http/services`).andThen(async (data) => {
+  fetchTraefikData(`${apiUrl}/api/http/services`).andThen((data) => {
     try {
-      const parsedServices = await ServiceSchema.validate(data, {
+      const parsedServices = ServiceSchema.validateSync(data, {
         strict: true,
         abortEarly: false,
       });
@@ -145,16 +143,12 @@ export const getService = (
 ): ResultAsync<Service, Error> =>
   fetchTraefikData(
     `${apiUrl}/api/http/services/${encodeURIComponent(serviceName)}`,
-  ).andThen(async (data) => {
+  ).andThen((data) => {
     try {
-      // ServiceSchema is for an array, so we need to validate the single item
-      const parsedService = await yup
-        .object()
-        .concat(ServiceSchema.element)
-        .validate(data, {
-          strict: true,
-          abortEarly: false,
-        });
+      const parsedService = ServiceItemSchema.validateSync(data, {
+        strict: true,
+        abortEarly: false,
+      });
       return ok(parsedService as Service);
     } catch (error) {
       console.error(`Single service (${serviceName}) parsing error:`, error);

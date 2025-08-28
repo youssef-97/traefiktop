@@ -5,16 +5,17 @@ import { useTraefikData } from "../hooks/useTraefikData";
 import { useTui } from "../tui/useTui";
 import { getRouterItemHeight } from "../utils/layout";
 import RouterItem from "./RouterItem";
-import {log} from "../services/logger";
 
 interface RoutersListProps {
   apiUrl: string;
   useTraefikDataHook?: typeof useTraefikData;
+  ignorePatterns?: string[];
 }
 
 const RoutersList: React.FC<RoutersListProps> = ({
   apiUrl,
   useTraefikDataHook = useTraefikData,
+  ignorePatterns = [],
 }) => {
   const { stdout } = useStdout();
   const rows = (stdout as any)?.rows ?? process.stdout.rows ?? 24;
@@ -38,7 +39,9 @@ const RoutersList: React.FC<RoutersListProps> = ({
   const headerHeight = 1; // Search bar
   const footerHeight = 1; // Navigation footer (only shown if scrolling needed)
   // In non-interactive mode (e.g., redirecting to a file), render all content without pagination
-  const availableHeight = nonInteractive ? Number.MAX_SAFE_INTEGER : rows - headerHeight - 1;
+  const availableHeight = nonInteractive
+    ? Number.MAX_SAFE_INTEGER
+    : rows - headerHeight - 1;
 
   // Calculate how many items can fit on screen for initial estimate
   // Get TUI state and filtered routers (must be called at top level)
@@ -46,6 +49,7 @@ const RoutersList: React.FC<RoutersListProps> = ({
     allRouters,
     allServices,
     availableHeight,
+    { ignorePatterns },
   );
 
   if (loading) {
@@ -57,7 +61,11 @@ const RoutersList: React.FC<RoutersListProps> = ({
   }
 
   // Helper to build a window of visible routers starting at a given index
-  type WindowItem = { router: typeof filteredRouters[number]; maxLines?: number; cutFrom?: "top" | "bottom" };
+  type WindowItem = {
+    router: (typeof filteredRouters)[number];
+    maxLines?: number;
+    cutFrom?: "top" | "bottom";
+  };
   const buildWindow = (startIndex: number) => {
     const windowRouters: WindowItem[] = [];
     let windowUsedLines = 0;
@@ -68,7 +76,8 @@ const RoutersList: React.FC<RoutersListProps> = ({
 
       // Reserve space for footer only if there will be more items above or below
       const needsFooter =
-        filteredRouters.length > 1 && (startIndex > 0 || i < filteredRouters.length - 1);
+        filteredRouters.length > 1 &&
+        (startIndex > 0 || i < filteredRouters.length - 1);
       const maxUsableHeight = needsFooter
         ? availableHeight - footerHeight
         : availableHeight;
@@ -83,7 +92,11 @@ const RoutersList: React.FC<RoutersListProps> = ({
         if (remaining > 0) {
           // Apply spacing
           windowUsedLines += interItemSpacing;
-          windowRouters.push({ router, maxLines: remaining, cutFrom: "bottom" });
+          windowRouters.push({
+            router,
+            maxLines: remaining,
+            cutFrom: "bottom",
+          });
           windowUsedLines = maxUsableHeight; // fully used
         }
         break;
@@ -97,13 +110,25 @@ const RoutersList: React.FC<RoutersListProps> = ({
     }
 
     // Ensure at least one item is visible (even if it overflows on very small screens)
-    if (windowRouters.length === 0 && filteredRouters.length > 0 && startIndex < filteredRouters.length) {
+    if (
+      windowRouters.length === 0 &&
+      filteredRouters.length > 0 &&
+      startIndex < filteredRouters.length
+    ) {
       const forcedRouter = filteredRouters[startIndex];
-      const needsFooter = filteredRouters.length > 1 && (startIndex > 0 || startIndex < filteredRouters.length - 1);
-      const maxUsableHeight = needsFooter ? availableHeight - footerHeight : availableHeight;
+      const needsFooter =
+        filteredRouters.length > 1 &&
+        (startIndex > 0 || startIndex < filteredRouters.length - 1);
+      const maxUsableHeight = needsFooter
+        ? availableHeight - footerHeight
+        : availableHeight;
       const forcedHeight = getRouterItemHeight(forcedRouter, allServices);
       const lines = Math.min(maxUsableHeight, forcedHeight);
-      windowRouters.push({ router: forcedRouter, maxLines: lines, cutFrom: "bottom" });
+      windowRouters.push({
+        router: forcedRouter,
+        maxLines: lines,
+        cutFrom: "bottom",
+      });
       windowUsedLines = lines;
     }
 
@@ -115,14 +140,14 @@ const RoutersList: React.FC<RoutersListProps> = ({
     state.topIndex,
     Math.max(0, filteredRouters.length - 1),
   );
-  let { windowRouters: visibleRouters } = buildWindow(
-    startIndex,
-  );
+  let { windowRouters: visibleRouters } = buildWindow(startIndex);
 
   // If the selected router is not within the window, shift the start index incrementally
-  const includesSelected = (start: number, items: {router: any}[]) => {
+  const includesSelected = (start: number, items: { router: any }[]) => {
     const count = items.length;
-    return state.selectedRouter >= start && state.selectedRouter < start + count;
+    return (
+      state.selectedRouter >= start && state.selectedRouter < start + count
+    );
   };
 
   if (
@@ -142,13 +167,15 @@ const RoutersList: React.FC<RoutersListProps> = ({
       probe = next;
       const built = buildWindow(probe);
       visibleRouters = built.windowRouters;
-      windowUsedLines = built.windowUsedLines;
       if (includesSelected(probe, visibleRouters)) {
         startIndex = probe;
         break;
       }
       // Safety cap to avoid infinite loops
-      if ((direction > 0 && probe >= state.selectedRouter) || (direction < 0 && probe <= state.selectedRouter)) {
+      if (
+        (direction > 0 && probe >= state.selectedRouter) ||
+        (direction < 0 && probe <= state.selectedRouter)
+      ) {
         startIndex = probe;
         break;
       }
@@ -156,7 +183,10 @@ const RoutersList: React.FC<RoutersListProps> = ({
   }
 
   // Ensure selected router is fully visible (avoid partial clipping)
-  if (filteredRouters.length > 0 && includesSelected(startIndex, visibleRouters)) {
+  if (
+    filteredRouters.length > 0 &&
+    includesSelected(startIndex, visibleRouters)
+  ) {
     const selectedIdxInWindow = state.selectedRouter - startIndex;
     const selectedItem = visibleRouters[selectedIdxInWindow];
     const fullHeight = getRouterItemHeight(
@@ -165,7 +195,8 @@ const RoutersList: React.FC<RoutersListProps> = ({
     );
 
     const isPartiallyClipped =
-      selectedItem?.maxLines !== undefined && selectedItem.maxLines < fullHeight;
+      selectedItem?.maxLines !== undefined &&
+      selectedItem.maxLines < fullHeight;
 
     if (isPartiallyClipped) {
       // Try to advance the window until the selected item fits fully or we run out of room
@@ -182,14 +213,14 @@ const RoutersList: React.FC<RoutersListProps> = ({
           // If advancing skips past selection (unlikely), stop
           break;
         }
-        const candidateSelected = built.windowRouters[state.selectedRouter - next];
+        const candidateSelected =
+          built.windowRouters[state.selectedRouter - next];
         const candidateClipped =
           candidateSelected?.maxLines !== undefined &&
           candidateSelected.maxLines < fullHeight;
         if (!candidateClipped) {
           startIndex = next;
           visibleRouters = built.windowRouters;
-          windowUsedLines = built.windowUsedLines;
           break;
         }
         probe = next;
@@ -197,14 +228,14 @@ const RoutersList: React.FC<RoutersListProps> = ({
         if (probe === state.selectedRouter) {
           startIndex = probe;
           visibleRouters = built.windowRouters;
-          windowUsedLines = built.windowUsedLines;
           break;
         }
       }
     }
   }
 
-  const shouldShowFooter = !nonInteractive && filteredRouters.length > visibleRouters.length;
+  const shouldShowFooter =
+    !nonInteractive && filteredRouters.length > visibleRouters.length;
   return (
     <Box flexDirection="column">
       {/* Always visible header */}
@@ -251,7 +282,9 @@ const RoutersList: React.FC<RoutersListProps> = ({
             {startIndex + visibleRouters.length} of {filteredRouters.length}{" "}
             {startIndex + visibleRouters.length < filteredRouters.length && "▼"}
           </Text>
-          <Text>sort: {state.sortMode === "status" ? "dead" : "name"} • press s</Text>
+          <Text>
+            sort: {state.sortMode === "status" ? "dead" : "name"} • press s
+          </Text>
         </Box>
       )}
     </Box>

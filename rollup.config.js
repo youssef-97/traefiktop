@@ -1,6 +1,5 @@
 import typescript from 'rollup-plugin-typescript2';
 import json from '@rollup/plugin-json';
-import { codecovRollupPlugin } from "@codecov/rollup-plugin";
 
 export default {
     input: 'src/main.tsx',             // make this your CLI entry
@@ -12,16 +11,11 @@ export default {
     },
     external: [
         'node:fs','node:fs/promises','node:path','node:os','node:process','node:child_process',
-        'node-pty','chalk','execa','react','react/jsx-runtime','ink','ink-text-input','yaml','string-width',
+        'react','react/jsx-runtime','ink','ink-text-input',
         'fs','path','os'
     ],
     plugins: [
         json(),
         typescript({ tsconfig: './tsconfig.json' }),
-	codecovRollupPlugin({
-	    enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
-	    bundleName: "argonaut",
-	    uploadToken: process.env.CODECOV_TOKEN,
-	}),
     ]
 };

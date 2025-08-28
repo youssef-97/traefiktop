@@ -1,121 +1,52 @@
-# 🐙 Argonaut — Argo CD TUI
+# Traefik TUI
 
-[![NPM Downloads](https://img.shields.io/npm/dm/argonaut-cli?style=flat-square&label=npm+downloads)](https://www.npmjs.com/package/argonaut-cli)
-[![Github Downloads](https://img.shields.io/github/downloads/darksworm/argonaut/total?style=flat-square&label=github+downloads)](https://github.com/darksworm/argonaut/releases/latest)
-[![License](https://img.shields.io/github/license/darksworm/argonaut?style=flat-square)](https://github.com/darksworm/argonaut/blob/main/LICENSE)
-[![codecov](https://img.shields.io/codecov/c/github/darksworm/argonaut?token=4MYA3DR30R&style=flat-square)](https://codecov.io/github/darksworm/argonaut)
+A simple, keyboard‑friendly terminal UI for exploring Traefik routers and services. Built with React + Ink, focused on clarity over chrome.
 
-Argonaut is a keyboard-first terminal UI for **Argo CD**, built with **React + Ink**. Browse apps, scope by clusters/namespaces/projects, stream live resource status, trigger syncs, inspect diffs in your favorite pager, and roll back safely — all without leaving your terminal.
+## What it shows
+- Routers, their rules, and the services they target
+- Which router is effectively down (no healthy services)
+- The active service path (failover aware)
+- Quick, readable status with a minimal set of emojis and colors
 
-> ❤️ 🐶
-> &nbsp;Inspired by the great UX of [k9s](https://k9scli.io) — but for Argo CD.
+## Install
+- One‑liner (shell script):
+  ```bash
+  curl -sSL https://raw.githubusercontent.com/darksworm/traefik-tui/main/install.sh | sh
+  # or pin a version
+  curl -sSL https://raw.githubusercontent.com/darksworm/traefik-tui/main/install.sh | sh -s -- v0.1.0
+  ```
+- Releases: download binaries/packages from the Releases page.
+- Homebrew/AUR/Nix: available via GoReleaser targets (see Releases). 
 
----
-
-## 📦 Prerequisites
-
-- [**Argo CD CLI**](https://argo-cd.readthedocs.io/en/stable/cli_installation/) installed
-- [**Delta**](https://dandavison.github.io/delta/installation.html) installed for enhanced diffs (optional, falls back to `git`)
-
----
-
-## 🚀 Installation methods
-
-<details>
-  <summary><strong>Install Script (Linux/macOS)</strong></summary>
+## Usage
+`--host` is required. Optionally hide routers by name with `--ignore` patterns (case‑insensitive). Use `*` at the start/end for “starts with” / “ends with”.
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/darksworm/argonaut/main/install.sh | sh
+traefik-tui --host https://traefik.example.org \
+  --ignore staging-* \
+  --ignore *-tmp,*-old
 ```
 
-The install script automatically detects your system (including musl vs glibc on Linux) and downloads the appropriate binary from the latest release.
+## Keys
+- Navigation: `j/k` or arrows
+- Page: `PgDn/PgUp`, `Ctrl+f/Ctrl+b`
+- Jump: `gg` (top), `G` (bottom), `Home/End`
+- Search: `/` to filter, `Esc` to clear
+- Sort: `s` toggles (dead first/name); `d` dead first; `n` name
+- Quit: `q` or `Ctrl+C`
 
-You can also install a specific version:
-```bash
-curl -sSL https://raw.githubusercontent.com/darksworm/argonaut/main/install.sh | sh -s -- v1.13.0
-```
-</details>
-
-<details>
-  <summary><strong>npm (Linux/macOS)</strong></summary>
-
-```bash
-npm i --global argonaut-cli
-```
-</details>
-
-<details>
-  <summary><strong>Homebrew (Linux/MacOS)</strong></summary>
+## Build from source
+Prereqs: Bun ≥ 1.2.20, Node ≥ 18
 
 ```bash
-brew tap darksworm/homebrew-tap
-brew install darksworm/tap/argonaut
-```
-</details>
-
-<details>
-  <summary><strong>AUR (Arch User Repository)</strong></summary>
-
-```bash
-yay -S argonaut-bin
-```
-</details>
-
-[//]: # ()
-[//]: # (<details>)
-
-[//]: # (  <summary><strong>NUR &#40;Nix User Repository&#41;</strong></summary>)
-
-[//]: # ()
-[//]: # (```bash)
-
-[//]: # (nix-env -iA nur.repos.darksworm.argonaut)
-
-[//]: # (```)
-
-[//]: # (</details>)
-
-<details>
-  <summary><strong>Download a binary</strong></summary>
-
-You can download binaries and packages in from the [**latest release**](https://github.com/darksworm/argonaut/releases/latest).
-
-</details>
-
-
-## ⚡ Quickstart
-```bash
-# Log in to your Argo CD server
-argocd login
-
-# Start Argonaut
-argonaut
+bun install
+# Node bundle (dist/cli.js)
+bun run build:node
+# Native binary (bun compile)
+bun run build:binary
 ```
 
----
-
-## ✨ Highlights
-
-- **Instant app browsing** with live updates (NDJSON streams)
-- **Scoped navigation**: clusters → namespaces → projects → apps
-- **Command palette** (`:`) for actions: `sync`, `diff`, `rollback`, `resources`, etc.
-- **Live resources view** per app with health & sync status
-- **External diff integration**: prefers `delta`, falls back to `git --no-index diff | less`
-- **Guided rollback** with revision metadata and progress streaming
-- **Keyboard-only workflow** with Vim-like navigation
-
----
-
-## 📸 Screenshots
-
-### **Apps**  
-<img src="assets/argonaut_apps.png" alt="Apps list"/>
-
-### **Resources**  
-<img src="assets/argonaut_resources.png" alt="Resources view"/>
-
-### **Diff**  
-<img src="assets/argonaut_diff.png" alt="External diff"/>
-
-### **Rollback**  
-<img src="assets/argonaut_rollback.png" alt="Rollback flow"/>
+## Notes
+- API URL is mandatory. The app won’t start without `--host`.
+- Ignore patterns support: `foo*` (starts with), `*bar` (ends with), `*mid*` (contains). Pass multiple `--ignore` flags or comma‑separate values.
+- When selected, dead routers use a bright red background for better contrast. Active services are colored; inactive/down are grey.

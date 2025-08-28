@@ -51,7 +51,7 @@ class DevLogTailer {
       return Logger.getLatestSessionFile()
         .andThen(filePath => {
           // Extract session ID from file path
-          const match = filePath.match(/argonaut-session-(.+)\.log$/);
+          const match = filePath.match(/traefik-tui-session-(.+)\.log$/);
           if (!match) {
             return err({ message: 'Could not extract session ID from latest log file' });
           }
@@ -137,7 +137,7 @@ class DevLogTailer {
         }
 
         const latestPath = latestResult.value;
-        const match = latestPath.match(/argonaut-session-(.+)\.log$/);
+        const match = latestPath.match(/traefik-tui-session-(.+)\.log$/);
         if (!match) {
           return;
         }

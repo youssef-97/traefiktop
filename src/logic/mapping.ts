@@ -11,8 +11,8 @@ export const mapRoutersToServices = (
 ): MappedRouter[] => {
   return routers.map((router) => ({
     router,
-    services: services.filter((service) =>
-      service.usedBy.includes(router.name),
+    services: services.filter(
+      (service) => service.usedBy?.includes(router.name) ?? false,
     ),
   }));
 };
