@@ -5,6 +5,7 @@ import { useTraefikData } from "../hooks/useTraefikData";
 import { useTui } from "../tui/useTui";
 import { getRouterItemHeight } from "../utils/layout";
 import RouterItem from "./RouterItem";
+import {log} from "../services/logger";
 
 interface RoutersListProps {
   apiUrl: string;
@@ -16,7 +17,11 @@ const RoutersList: React.FC<RoutersListProps> = ({
   useTraefikDataHook = useTraefikData,
 }) => {
   const { stdout } = useStdout();
-  const terminalWidth = stdout.columns;
+  const rows = (stdout as any)?.rows ?? process.stdout.rows ?? 24;
+  const cols = (stdout as any)?.columns ?? process.stdout.columns ?? 80;
+  const isTTY = (stdout as any)?.isTTY ?? (typeof process !== "undefined" && (process.stdout as any)?.isTTY) ?? false;
+  const nonInteractive = !isTTY;
+  const terminalWidth = cols;
 
   // State and data fetching
   const {
@@ -29,7 +34,8 @@ const RoutersList: React.FC<RoutersListProps> = ({
   // Calculate available screen space
   const headerHeight = 1; // Search bar
   const footerHeight = 1; // Navigation footer (only shown if scrolling needed)
-  const availableHeight = stdout.rows - headerHeight - 1;
+  // In non-interactive mode (e.g., redirecting to a file), render all content without pagination
+  const availableHeight = nonInteractive ? Number.MAX_SAFE_INTEGER : rows - headerHeight;
 
   // Calculate how many items can fit on screen for initial estimate
   const estimatedItemHeight = 3; // Average estimate for router + services
@@ -68,9 +74,15 @@ const RoutersList: React.FC<RoutersListProps> = ({
         ? availableHeight - footerHeight
         : availableHeight;
 
-      if (windowUsedLines + itemHeight > maxUsableHeight) {
+      // Account for spacing between router items (RouterItem adds marginBottom=1 except last visible)
+      const interItemSpacing = windowRouters.length > 0 ? 1 : 0;
+
+      if (windowUsedLines + interItemSpacing + itemHeight > maxUsableHeight) {
         break;
       }
+
+      // Apply spacing for all but the first item in the window
+      windowUsedLines += interItemSpacing;
 
       windowRouters.push(router);
       windowUsedLines += itemHeight;
@@ -99,11 +111,13 @@ const RoutersList: React.FC<RoutersListProps> = ({
     ({ windowRouters: visibleRouters, windowUsedLines } = buildWindow(startIndex));
   }
 
-  const shouldShowFooter = filteredRouters.length > visibleRouters.length;
-  const spacerHeight = Math.max(
-    0,
-    availableHeight - (shouldShowFooter ? footerHeight : 0) - windowUsedLines,
-  );
+  const shouldShowFooter = !nonInteractive && filteredRouters.length > visibleRouters.length;
+  const spacerHeight = !nonInteractive
+    ? Math.max(
+        0,
+        availableHeight - (shouldShowFooter ? footerHeight : 0) - windowUsedLines,
+      )
+    : 0;
 
   return (
     <Box flexDirection="column">

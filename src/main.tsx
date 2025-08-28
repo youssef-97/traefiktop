@@ -78,24 +78,24 @@ async function main() {
 
   setupAlternateScreen();
 
-  process.on("external-enter", () => {
-    beginExclusiveInput();
-    enterExternal();
-  });
-
-  process.on("external-exit", async () => {
-    endExclusiveInput();
-    exitExternal();
-
-    const oldCols = process.stdout.columns;
-    process.stdout.columns = oldCols - 1;
-    process.stdout.emit("resize");
-
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    process.stdout.columns = oldCols;
-    process.stdout.emit("resize");
-  });
+  // process.on("external-enter", () => {
+  //   beginExclusiveInput();
+  //   enterExternal();
+  // });
+  //
+  // process.on("external-exit", async () => {
+  //   endExclusiveInput();
+  //   exitExternal();
+  //
+  //   const oldCols = process.stdout.columns;
+  //   process.stdout.columns = oldCols - 1;
+  //   process.stdout.emit("resize");
+  //
+  //   await new Promise((resolve) => setTimeout(resolve, 0));
+  //
+  //   process.stdout.columns = oldCols;
+  //   process.stdout.emit("resize");
+  // });
 
   try {
     render(
@@ -111,6 +111,7 @@ async function main() {
       },
     );
     try {
+      setupAlternateScreen();
       mutableStdin.attach(process.stdin as any);
     } catch {}
   } catch (error) {
