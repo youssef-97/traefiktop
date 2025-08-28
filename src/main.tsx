@@ -123,7 +123,7 @@ async function main() {
   // Setup global error handlers (after logger is initialized)
   setupGlobalErrorHandlers();
 
-  log.info("TraefikTop session started", "main", {
+  log.info("traefiktop session started", "main", {
     sessionId: logger.getSessionId(),
     logFile: logger.getLogFilePath(),
   });

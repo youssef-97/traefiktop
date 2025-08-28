@@ -1,4 +1,4 @@
-# TraefikTop
+# traefiktop
 
 [![GitHub Downloads](https://img.shields.io/github/downloads/darksworm/traefiktop/total?style=flat-square&label=github+downloads)](https://github.com/darksworm/traefiktop/releases/latest)
 [![Latest Release](https://img.shields.io/github/v/release/darksworm/traefiktop?style=flat-square)](https://github.com/darksworm/traefiktop/releases/latest)
