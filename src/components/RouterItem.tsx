@@ -59,8 +59,11 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
     }
     routerStatus = aliveCount > 0 ? "UP" : routerServices.length === 0 ? "UNKNOWN" : "DOWN";
     const isDown = routerStatus === "DOWN";
+    const selectedBg = isSelected ? (isDown ? "redBright" : "blueBright") : undefined;
+    const nameColor = isSelected ? "white" : isDown ? "red" : "white";
+    const iconColor = isSelected ? "white" : isDown ? undefined : "cyan";
     const LeadingIcon: React.FC = () => (
-      <Text color={isDown ? undefined : "cyan"}>{isDown ? "💀" : "⬢ "}</Text>
+      <Text color={iconColor}>{isDown ? "💀" : "⬢ "}</Text>
     );
 
     // If no partial rendering requested, render full item as before
@@ -71,12 +74,14 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
           width={terminalWidth}
           marginBottom={isLast ? 0 : 1}
         >
-          <Text backgroundColor={isSelected ? "blue" : undefined} wrap="truncate-end">
-            <LeadingIcon />
-            <Text color={isDown ? "red" : "white"} bold>
-              {router.name.trim()}
+          <Box width={terminalWidth} backgroundColor={selectedBg}>
+            <Text wrap="truncate-end">
+              <LeadingIcon />
+              <Text color={nameColor} bold>
+                {router.name.trim()}
+              </Text>
             </Text>
-          </Text>
+          </Box>
 
           <Text color="gray" wrap="truncate-end">
             {"  "}
@@ -122,12 +127,14 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
 
     // Header line
     pushLine(
-      <Text backgroundColor={isSelected ? "blue" : undefined} wrap="truncate-end" key="router-header">
-        <LeadingIcon />
-        <Text color={isDown ? "red" : "white"} bold>
-          {router.name.trim()}
+      <Box width={terminalWidth} backgroundColor={selectedBg} key="router-header">
+        <Text wrap="truncate-end">
+          <LeadingIcon />
+          <Text color={nameColor} bold>
+            {router.name.trim()}
+          </Text>
         </Text>
-      </Text>
+      </Box>
     );
 
     // Rule line

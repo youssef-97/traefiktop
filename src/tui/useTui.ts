@@ -4,6 +4,8 @@ import type { Router } from "../types/traefik";
 import { initialState, tuiReducer } from "./reducer";
 import type { Service } from "../types/traefik";
 import { getRouterItemHeight } from "../utils/layout";
+import { getServiceStatus } from "../logic/status";
+import { getFailoverServices } from "../logic/failover";
 
 export const useTui = (
   routers: Router[],
@@ -16,10 +18,56 @@ export const useTui = (
     router.name.toLowerCase().includes(state.searchQuery.toLowerCase()),
   );
 
+  // Determine router status for sorting: DOWN if has services but none UP; UP if any UP; else UNKNOWN
+  const routerStatus = useMemo(() => {
+    const statusMap = new Map<string, "UP" | "DOWN" | "UNKNOWN">();
+    for (const r of filteredRouters) {
+      // match services as in RouterItem
+      const escaped = r.service.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const pattern = new RegExp(`^${escaped}(@\\w+)?$`);
+      const matched = services.filter((s) => pattern.test(s.name));
+      let alive = 0;
+      for (const s of matched) {
+        if (s.type === "failover" && s.failover) {
+          const { primary, fallback } = getFailoverServices(s.name, services);
+          const ps = primary ? getServiceStatus(primary, services, new Set()) : "UNKNOWN";
+          const fs = fallback ? getServiceStatus(fallback, services, new Set()) : "UNKNOWN";
+          if (ps === "UP" || fs === "UP") alive += 1;
+        } else {
+          const st = getServiceStatus(s, services, new Set());
+          if (st === "UP") alive += 1;
+        }
+      }
+      const status: "UP" | "DOWN" | "UNKNOWN" = matched.length === 0 ? "UNKNOWN" : alive > 0 ? "UP" : "DOWN";
+      statusMap.set(r.name, status);
+    }
+    return statusMap;
+  }, [filteredRouters, services]);
+
+  const sortedRouters = useMemo(() => {
+    const arr = filteredRouters.slice();
+    if (state.sortMode === "name") {
+      arr.sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      // status: DEAD first, then UNKNOWN, then UP; inside each by name
+      const rank = (r: Router) => {
+        const s = routerStatus.get(r.name) || "UNKNOWN";
+        return s === "DOWN" ? 0 : s === "UNKNOWN" ? 1 : 2;
+      };
+      arr.sort((a, b) => {
+        const ra = rank(a);
+        const rb = rank(b);
+        if (ra !== rb) return ra - rb;
+        return a.name.localeCompare(b.name);
+      });
+    }
+    return arr;
+  }, [filteredRouters, state.sortMode, routerStatus]);
+
   // Precompute full item heights for filtered routers
   const heights = useMemo(
-    () => filteredRouters.map((r) => getRouterItemHeight(r, services)),
-    [filteredRouters, services],
+    () => sortedRouters.map((r) => getRouterItemHeight(r, services)),
+    [sortedRouters, services],
   );
 
   const footerHeight = 1;
@@ -33,11 +81,25 @@ export const useTui = (
       process.exit(0);
     }
 
-    if (state.mode === "normal") {
-      if (input === "/") {
-        dispatch({ type: "SET_MODE", payload: "search" });
-        return;
-      }
+      if (state.mode === "normal") {
+        if (input === "/") {
+          dispatch({ type: "SET_MODE", payload: "search" });
+          return;
+        }
+
+        // Sorting controls
+        if (input === "s") {
+          dispatch({ type: "TOGGLE_SORT_MODE" });
+          return;
+        }
+        if (input === "n" || input === "N") {
+          dispatch({ type: "SET_SORT_MODE", payload: "name" });
+          return;
+        }
+        if (input === "d" || input === "D") {
+          dispatch({ type: "SET_SORT_MODE", payload: "status" });
+          return;
+        }
 
       if (key.upArrow || input === "k") {
         dispatch({
@@ -126,5 +188,5 @@ export const useTui = (
     }
   });
 
-  return { state, dispatch, filteredRouters };
+  return { state, dispatch, filteredRouters: sortedRouters };
 };

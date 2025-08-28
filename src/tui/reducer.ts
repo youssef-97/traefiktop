@@ -7,12 +7,15 @@ export interface TuiState {
   searchQuery: string;
   selectedRouter: number;
   topIndex: number;
+  sortMode: "name" | "status";
 }
 
 export type TuiAction =
   | { type: "SET_MODE"; payload: TuiMode }
   | { type: "SET_SEARCH_QUERY"; payload: string }
   | { type: "SET_SELECTED_ROUTER"; payload: number }
+  | { type: "SET_SORT_MODE"; payload: "name" | "status" }
+  | { type: "TOGGLE_SORT_MODE" }
   | {
       type: "MOVE_UP";
       payload: {
@@ -50,6 +53,7 @@ export const initialState: TuiState = {
   searchQuery: "",
   selectedRouter: 0,
   topIndex: 0,
+  sortMode: "status",
 };
 
 export const tuiReducer = produce((draft: TuiState, action: TuiAction) => {
@@ -132,6 +136,16 @@ export const tuiReducer = produce((draft: TuiState, action: TuiAction) => {
       break;
     case "SET_SELECTED_ROUTER":
       draft.selectedRouter = action.payload;
+      break;
+    case "SET_SORT_MODE":
+      draft.sortMode = action.payload;
+      draft.selectedRouter = 0;
+      draft.topIndex = 0;
+      break;
+    case "TOGGLE_SORT_MODE":
+      draft.sortMode = draft.sortMode === "name" ? "status" : "name";
+      draft.selectedRouter = 0;
+      draft.topIndex = 0;
       break;
     case "MOVE_DOWN": {
       const { filteredRoutersLength, heights, availableHeight, footerHeight } =

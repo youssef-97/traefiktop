@@ -51,10 +51,10 @@ const ServiceItem: React.FC<ServiceItemProps> = React.memo(
             <Text wrap="truncate-end" key="fo-header">
               {"  "}
               {connector}{" "}
-              <Text color="blue" bold>
+              <Text color="magenta" dimColor>
                 {service.name}
               </Text>{" "}
-              <Text color="gray">(failover)</Text>
+              <Text color="magenta" dimColor>(failover)</Text>
             </Text>,
           );
           if (primary) {

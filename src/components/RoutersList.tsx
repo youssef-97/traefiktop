@@ -245,13 +245,13 @@ const RoutersList: React.FC<RoutersListProps> = ({
       </Box>
       {/*Footer with navigation info */}
       {shouldShowFooter && (
-        <Box justifyContent="center" backgroundColor="gray">
+        <Box justifyContent="space-between" backgroundColor="gray" paddingX={1}>
           <Text>
             {startIndex > 0 && "▲"} {startIndex + 1}-
             {startIndex + visibleRouters.length} of {filteredRouters.length}{" "}
-            {startIndex + visibleRouters.length < filteredRouters.length &&
-              "▼"}
+            {startIndex + visibleRouters.length < filteredRouters.length && "▼"}
           </Text>
+          <Text>sort: {state.sortMode === "status" ? "dead" : "name"} • press s</Text>
         </Box>
       )}
     </Box>
