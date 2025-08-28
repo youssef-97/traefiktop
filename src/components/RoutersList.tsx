@@ -113,8 +113,13 @@ const RoutersList: React.FC<RoutersListProps> = ({
   };
 
   // First, build from the current topIndex
-  let startIndex = Math.min(state.topIndex, Math.max(0, filteredRouters.length - 1));
-  let { windowRouters: visibleRouters, windowUsedLines } = buildWindow(startIndex);
+  let startIndex = Math.min(
+    state.topIndex,
+    Math.max(0, filteredRouters.length - 1),
+  );
+  let { windowRouters: visibleRouters, windowUsedLines } = buildWindow(
+    startIndex,
+  );
 
   // If the selected router is not within the window, shift the start index incrementally
   const includesSelected = (start: number, items: {router: any}[]) => {
@@ -122,7 +127,10 @@ const RoutersList: React.FC<RoutersListProps> = ({
     return state.selectedRouter >= start && state.selectedRouter < start + count;
   };
 
-  if (filteredRouters.length > 0 && !includesSelected(startIndex, visibleRouters)) {
+  if (
+    filteredRouters.length > 0 &&
+    !includesSelected(startIndex, visibleRouters)
+  ) {
     // Move window one item at a time toward the selected index
     const direction = state.selectedRouter > startIndex ? 1 : -1;
     let probe = startIndex;
@@ -145,6 +153,55 @@ const RoutersList: React.FC<RoutersListProps> = ({
       if ((direction > 0 && probe >= state.selectedRouter) || (direction < 0 && probe <= state.selectedRouter)) {
         startIndex = probe;
         break;
+      }
+    }
+  }
+
+  // Ensure selected router is fully visible (avoid partial clipping)
+  if (filteredRouters.length > 0 && includesSelected(startIndex, visibleRouters)) {
+    const selectedIdxInWindow = state.selectedRouter - startIndex;
+    const selectedItem = visibleRouters[selectedIdxInWindow];
+    const fullHeight = getRouterItemHeight(
+      filteredRouters[state.selectedRouter],
+      allServices,
+    );
+
+    const isPartiallyClipped =
+      selectedItem?.maxLines !== undefined && selectedItem.maxLines < fullHeight;
+
+    if (isPartiallyClipped) {
+      // Try to advance the window until the selected item fits fully or we run out of room
+      let probe = startIndex;
+      while (probe < state.selectedRouter) {
+        const next = Math.min(
+          Math.max(0, probe + 1),
+          Math.max(0, filteredRouters.length - 1),
+        );
+        if (next === probe) break;
+        const built = buildWindow(next);
+        const nowInWindow = includesSelected(next, built.windowRouters);
+        if (!nowInWindow) {
+          // If advancing skips past selection (unlikely), stop
+          break;
+        }
+        const candidateSelected = built.windowRouters[state.selectedRouter - next];
+        const candidateClipped =
+          candidateSelected?.maxLines !== undefined &&
+          candidateSelected.maxLines < fullHeight;
+        if (!candidateClipped) {
+          startIndex = next;
+          visibleRouters = built.windowRouters;
+          windowUsedLines = built.windowUsedLines;
+          break;
+        }
+        probe = next;
+        // If we reach the selection as the first visible item and still clipped, we can't improve further.
+        if (probe === state.selectedRouter) {
+          startIndex = probe;
+          visibleRouters = built.windowRouters;
+          windowUsedLines = built.windowUsedLines;
+          break;
+        }
       }
     }
   }
