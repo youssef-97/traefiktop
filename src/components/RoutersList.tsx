@@ -38,16 +38,11 @@ const RoutersList: React.FC<RoutersListProps> = ({
   const availableHeight = nonInteractive ? Number.MAX_SAFE_INTEGER : rows - headerHeight;
 
   // Calculate how many items can fit on screen for initial estimate
-  const estimatedItemHeight = 3; // Average estimate for router + services
-  const estimatedVisibleCount = Math.max(
-    1,
-    Math.floor(availableHeight / estimatedItemHeight),
-  );
-
   // Get TUI state and filtered routers (must be called at top level)
   const { state, dispatch, filteredRouters } = useTui(
     allRouters,
-    estimatedVisibleCount,
+    allServices,
+    availableHeight,
   );
 
   if (loading) {
