@@ -4,7 +4,8 @@
   <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.svg">
   <img alt="traefiktop" src="assets/logo-light.svg">
 </picture>
-
+ 
+[![npm Downloads](https://img.shields.io/npm/dm/traefiktop?style=flat-square&label=npm+downloads)](https://www.npmjs.com/package/traefiktop)
 [![GitHub Downloads](https://img.shields.io/github/downloads/darksworm/traefiktop/total?style=flat-square&label=github+downloads)](https://github.com/darksworm/traefiktop/releases/latest)
 [![Latest Release](https://img.shields.io/github/v/release/darksworm/traefiktop?style=flat-square)](https://github.com/darksworm/traefiktop/releases/latest)
 [![License](https://img.shields.io/github/license/darksworm/traefiktop?style=flat-square)](./LICENSE)
