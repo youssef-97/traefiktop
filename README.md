@@ -1,5 +1,10 @@
 # Traefik TUI
 
+[![GitHub Downloads](https://img.shields.io/github/downloads/darksworm/traefik-tui/total?style=flat-square&label=github+downloads)](https://github.com/darksworm/traefik-tui/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/darksworm/traefik-tui?style=flat-square)](https://github.com/darksworm/traefik-tui/releases/latest)
+[![License](https://img.shields.io/github/license/darksworm/traefik-tui?style=flat-square)](./LICENSE)
+[![codecov](https://img.shields.io/codecov/c/github/darksworm/traefik-tui?style=flat-square)](https://codecov.io/github/darksworm/traefik-tui)
+
 A simple, keyboard‑friendly terminal UI for exploring Traefik routers and services. Built with React + Ink, focused on clarity over chrome.
 
 ## What it shows
