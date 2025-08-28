@@ -46,5 +46,15 @@ export const useTraefikData = (apiUrl: string) => {
     // return () => clearInterval(intervalId); // Cleanup on unmount
   }, [apiUrl, refreshTick]);
   const refresh = () => setRefreshTick((n) => n + 1);
+
+  // Auto-refresh every 10s
+  // biome-ignore lint/correctness/useExhaustiveDependencies: interval should reset only on apiUrl changes
+  useEffect(() => {
+    const id = setInterval(() => {
+      setRefreshTick((n) => n + 1);
+    }, 10_000);
+    return () => clearInterval(id);
+  }, [apiUrl]);
+
   return { routers, services, loading, error, refresh };
 };

@@ -295,7 +295,7 @@ const RoutersList: React.FC<RoutersListProps> = ({
             {startIndex + visibleRouters.length} of {filteredRouters.length}{" "}
             {startIndex + visibleRouters.length < filteredRouters.length && "▼"}
           </Text>
-          <Text>{flash ?? ""}</Text>
+          <Text color="green">{flash ?? ""}</Text>
           <Text>
             sort: {state.sortMode === "status" ? "dead" : "name"} • s: sort • r:
             refresh
