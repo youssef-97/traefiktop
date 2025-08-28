@@ -2,7 +2,7 @@
   "name": "traefiktop",
   "author": "darksworm (Ilmars Janis Bluzmanis)",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
   "type": "module",
   "scripts": {
     "dev": "bun src/main.tsx",
