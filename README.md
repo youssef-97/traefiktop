@@ -19,15 +19,55 @@ A simple, keyboard‑friendly terminal UI for exploring Traefik routers and serv
 - The active service path (failover aware)
 - Quick, readable status with a minimal set of emojis and colors
 
-## Install
-- One‑liner (shell script):
-  ```bash
-  curl -sSL https://raw.githubusercontent.com/darksworm/traefiktop/main/install.sh | sh
-  # or pin a version
-  curl -sSL https://raw.githubusercontent.com/darksworm/traefiktop/main/install.sh | sh -s -- v0.1.0
-  ```
-- Releases: download binaries/packages from the Releases page.
-- Homebrew/AUR/Nix: available via GoReleaser targets (see Releases). 
+## 🚀 Installation methods
+
+<details>
+  <summary><strong>Install Script (Linux/macOS)</strong></summary>
+
+```bash
+curl -sSL https://raw.githubusercontent.com/darksworm/traefiktop/main/install.sh | sh
+```
+
+The install script automatically detects your system (including musl vs glibc on Linux) and downloads the appropriate binary from the latest release.
+
+You can also install a specific version:
+```bash
+curl -sSL https://raw.githubusercontent.com/darksworm/traefiktop/main/install.sh | sh -s -- v0.1.0
+```
+</details>
+
+<details>
+  <summary><strong>npm (Linux/macOS)</strong></summary>
+
+```bash
+npm i --global traefiktop
+```
+</details>
+
+<details>
+  <summary><strong>Homebrew (Linux/macOS)</strong></summary>
+
+```bash
+brew tap darksworm/homebrew-tap
+brew install --cask traefiktop
+```
+</details>
+
+<details>
+  <summary><strong>AUR (Arch User Repository)</strong></summary>
+
+```bash
+yay -S traefiktop-bin
+```
+</details>
+
+<details>
+  <summary><strong>Download a binary</strong></summary>
+
+Grab binaries and packages from the latest release:
+https://github.com/darksworm/traefiktop/releases/latest
+
+</details>
 
 ## Usage
 `--host` is required. Optionally hide routers by name with `--ignore` patterns (case‑insensitive). Use `*` at the start/end for “starts with” / “ends with”. Use `--insecure` to disable TLS verification for development against self‑signed endpoints.
