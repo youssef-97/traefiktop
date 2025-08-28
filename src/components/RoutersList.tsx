@@ -103,6 +103,7 @@ const RoutersList: React.FC<RoutersListProps> = ({
       {/* Content */}
       {visibleRouters.map((router, index) => {
         const absoluteIndex = state.topIndex + index;
+        const isLast = index === visibleRouters.length - 1;
         return (
           <RouterItem
             key={router.name}
@@ -110,6 +111,7 @@ const RoutersList: React.FC<RoutersListProps> = ({
             services={allServices}
             isSelected={absoluteIndex === state.selectedRouter}
             terminalWidth={terminalWidth}
+            isLast={isLast}
           />
         );
       })}

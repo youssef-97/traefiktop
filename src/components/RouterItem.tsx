@@ -40,7 +40,7 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
 
         <Text color="gray" wrap="truncate-end">
           {"  "}
-          <Text color="yellow">→</Text> {router.rule}
+          <Text color="yellow">→</Text> {router.rule.trim()}
         </Text>
 
         {routerServices.map((service, index) => {

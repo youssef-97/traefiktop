@@ -92,16 +92,14 @@ const ServiceItem: React.FC<ServiceItemProps> = React.memo(
       "No servers";
 
     return (
-        <Box flexDirection="column" width={terminalWidth}>
-            <Text wrap="truncate-end">
-                {"  "}
-                {connector}{" "}
-                <Text color="white" bold>
-                    {service.name}
-                </Text>{" "}
-                {getStatusIndicator(status)} <Text color="gray">{serverUrls}</Text>
-            </Text>
-        </Box>
+      <Text wrap="truncate-end">
+        {"  "}
+        {connector}{" "}
+        <Text color="white" bold>
+          {service.name}
+        </Text>{" "}
+        {getStatusIndicator(status)} <Text color="gray">{serverUrls}</Text>
+      </Text>
     );
   },
 );
