@@ -6,8 +6,7 @@
     </style>
   </defs>
   
-  <!-- Combined text with styled æ -->
   <text x="10" y="35" font-size="28" class="text-main">
-    tr<tspan class="text-accent">æ</tspan>fiktøp
+    tr<tspan class="text-accent">æ</tspan>fik<tspan class="text-accent">tøp</tspan>
   </text>
 </svg>
