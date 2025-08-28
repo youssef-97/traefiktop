@@ -59,8 +59,9 @@ const RoutersList: React.FC<RoutersListProps> = ({
   }
 
   // Helper to build a window of visible routers starting at a given index
+  type WindowItem = { router: typeof filteredRouters[number]; maxLines?: number; cutFrom?: "top" | "bottom" };
   const buildWindow = (startIndex: number) => {
-    const windowRouters: typeof filteredRouters = [];
+    const windowRouters: WindowItem[] = [];
     let windowUsedLines = 0;
 
     for (let i = startIndex; i < filteredRouters.length; i++) {
@@ -77,26 +78,35 @@ const RoutersList: React.FC<RoutersListProps> = ({
       // Account for spacing between router items (RouterItem adds marginBottom=1 except last visible)
       const interItemSpacing = windowRouters.length > 0 ? 1 : 0;
 
-      if (windowUsedLines + interItemSpacing + itemHeight > maxUsableHeight) {
+      const wouldUse = windowUsedLines + interItemSpacing + itemHeight;
+      if (wouldUse > maxUsableHeight) {
+        // Try partial render if there is remaining space after spacing
+        const remaining = maxUsableHeight - windowUsedLines - interItemSpacing;
+        if (remaining > 0) {
+          // Apply spacing
+          windowUsedLines += interItemSpacing;
+          windowRouters.push({ router, maxLines: remaining, cutFrom: "bottom" });
+          windowUsedLines = maxUsableHeight; // fully used
+        }
         break;
       }
 
       // Apply spacing for all but the first item in the window
       windowUsedLines += interItemSpacing;
 
-      windowRouters.push(router);
+      windowRouters.push({ router });
       windowUsedLines += itemHeight;
     }
 
     // Ensure at least one item is visible (even if it overflows on very small screens)
     if (windowRouters.length === 0 && filteredRouters.length > 0 && startIndex < filteredRouters.length) {
       const forcedRouter = filteredRouters[startIndex];
-      windowRouters.push(forcedRouter);
-      // Best-effort windowUsedLines to avoid adding spacer when already overflowing
       const needsFooter = filteredRouters.length > 1 && (startIndex > 0 || startIndex < filteredRouters.length - 1);
       const maxUsableHeight = needsFooter ? availableHeight - footerHeight : availableHeight;
       const forcedHeight = getRouterItemHeight(forcedRouter, allServices);
-      windowUsedLines = Math.min(maxUsableHeight, forcedHeight);
+      const lines = Math.min(maxUsableHeight, forcedHeight);
+      windowRouters.push({ router: forcedRouter, maxLines: lines, cutFrom: "bottom" });
+      windowUsedLines = lines;
     }
 
     return { windowRouters, windowUsedLines };
@@ -106,15 +116,37 @@ const RoutersList: React.FC<RoutersListProps> = ({
   let startIndex = Math.min(state.topIndex, Math.max(0, filteredRouters.length - 1));
   let { windowRouters: visibleRouters, windowUsedLines } = buildWindow(startIndex);
 
-  // If the selected router is not within the window (e.g., due to dynamic heights),
-  // rebuild the window anchored at the selected item so it becomes visible.
-  const lastAbsoluteIndex = startIndex + visibleRouters.length - 1;
-  if (
-    filteredRouters.length > 0 &&
-    (state.selectedRouter < startIndex || state.selectedRouter > lastAbsoluteIndex)
-  ) {
-    startIndex = Math.min(state.selectedRouter, Math.max(0, filteredRouters.length - 1));
-    ({ windowRouters: visibleRouters, windowUsedLines } = buildWindow(startIndex));
+  // If the selected router is not within the window, shift the start index incrementally
+  const includesSelected = (start: number, items: {router: any}[]) => {
+    const count = items.length;
+    return state.selectedRouter >= start && state.selectedRouter < start + count;
+  };
+
+  if (filteredRouters.length > 0 && !includesSelected(startIndex, visibleRouters)) {
+    // Move window one item at a time toward the selected index
+    const direction = state.selectedRouter > startIndex ? 1 : -1;
+    let probe = startIndex;
+
+    while (true) {
+      const next = Math.min(
+        Math.max(0, probe + direction),
+        Math.max(0, filteredRouters.length - 1),
+      );
+      if (next === probe) break;
+      probe = next;
+      const built = buildWindow(probe);
+      visibleRouters = built.windowRouters;
+      windowUsedLines = built.windowUsedLines;
+      if (includesSelected(probe, visibleRouters)) {
+        startIndex = probe;
+        break;
+      }
+      // Safety cap to avoid infinite loops
+      if ((direction > 0 && probe >= state.selectedRouter) || (direction < 0 && probe <= state.selectedRouter)) {
+        startIndex = probe;
+        break;
+      }
+    }
   }
 
   const shouldShowFooter = !nonInteractive && filteredRouters.length > visibleRouters.length;
@@ -145,17 +177,19 @@ const RoutersList: React.FC<RoutersListProps> = ({
       </Box>
 
       {/* Content */}
-      {visibleRouters.map((router, index) => {
+      {visibleRouters.map((item, index) => {
         const absoluteIndex = startIndex + index;
         const isLast = index === visibleRouters.length - 1;
         return (
           <RouterItem
-            key={router.name}
-            router={router}
+            key={item.router.name}
+            router={item.router}
             services={allServices}
             isSelected={absoluteIndex === state.selectedRouter}
             terminalWidth={terminalWidth}
             isLast={isLast}
+            maxLines={item.maxLines}
+            cutFrom={item.cutFrom}
           />
         );
       })}
