@@ -61,6 +61,8 @@ async function main() {
   let apiUrl: string | undefined;
   const ignorePatterns: string[] = [];
   let insecure = false;
+  let tailLogsRequested = false;
+  let tailSession: string | undefined;
 
   const pushIgnore = (val?: string) => {
     if (!val) return;
@@ -77,7 +79,7 @@ async function main() {
     const a = args[i];
     if (a === "--help" || a === "-h") {
       console.log(
-        "Usage: traefiktop --host <url> [--ignore <pat>[,<pat>...]] [--ignore <pat>]... [--insecure]",
+        "Usage: traefiktop [--tail-logs [--session <id|latest>]] | --host <url> [--ignore <pat>[,<pat>...]] [--ignore <pat>]... [--insecure]",
       );
       console.log(
         "  --host     REQUIRED. Traefik API base URL (e.g. https://traefik.local)",
@@ -88,6 +90,10 @@ async function main() {
       console.log(
         "  --insecure Disable TLS certificate verification (development only)",
       );
+      console.log(
+        "  --tail-logs  Show logs from the latest session (or a specific session with --session)",
+      );
+      console.log("  --session    Session id or 'latest' (default: latest)");
       process.exit(0);
     }
     if (a === "--host" || a === "--api-url") {
@@ -111,6 +117,34 @@ async function main() {
       insecure = true;
       continue;
     }
+    if (a === "--tail-logs") {
+      tailLogsRequested = true;
+      continue;
+    }
+    if (a.startsWith("--tail-logs=")) {
+      tailLogsRequested = true;
+      tailSession = a.split("=")[1] || undefined;
+      continue;
+    }
+    if (a === "--session") {
+      tailSession = args[i + 1];
+      i += 1;
+      continue;
+    }
+    if (a.startsWith("--session=")) {
+      tailSession = a.split("=")[1];
+    }
+  }
+
+  // If requested, tail logs and exit early
+  if (tailLogsRequested) {
+    const { tailLogs } = await import("./services/log-tailer");
+    const result = await tailLogs({ session: tailSession || "latest" });
+    if (result.isErr()) {
+      console.error(`❌ Failed to tail logs: ${result.error.message}`);
+      process.exit(1);
+    }
+    process.exit(0);
   }
 
   if (!apiUrl) {
