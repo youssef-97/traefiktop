@@ -11,24 +11,27 @@ interface ServiceItemProps {
   isLast?: boolean;
   maxLines?: number;
   cutFrom?: "top" | "bottom";
+  isActiveForRouter?: boolean;
 }
 
 const ServiceItem: React.FC<ServiceItemProps> = React.memo(
-  ({ service, services, terminalWidth, isLast = false, maxLines, cutFrom = "bottom" }) => {
+  ({ service, services, terminalWidth, isLast = false, maxLines, cutFrom = "bottom", isActiveForRouter = false }) => {
     const status = getServiceStatus(service, services, new Set());
     const connector = isLast ? "└──" : "├──";
 
-    // Helper function to get status indicator
-    const getStatusIndicator = (serviceStatus: string) => {
+    // Helper: emoji status indicator
+    const statusEmoji = (serviceStatus: string) => {
       switch (serviceStatus) {
         case "UP":
-          return <Text color="green">●</Text>;
+          return <Text>✅</Text>;
         case "DOWN":
-          return <Text color="red">●</Text>;
+          return <Text>❌</Text>;
         default:
-          return <Text color="gray">●</Text>;
+          return <Text>❓</Text>;
       }
     };
+
+    // Minimal presentation; no per-service counts here to reduce noise
 
     if (service.type === "failover") {
           // Build lines for a failover service
@@ -56,29 +59,25 @@ const ServiceItem: React.FC<ServiceItemProps> = React.memo(
           );
           if (primary) {
             lines.push(
-              <Text wrap="truncate-end" key="fo-primary">
+              <Text
+                wrap="truncate-end"
+                key="fo-primary"
+                color={isUsingPrimary && primaryStatus !== "DOWN" ? undefined : "gray"}
+              >
                 {"  "}
-                {"  "}├──{" "}
-                <Text color={isUsingPrimary ? "green" : "gray"} bold={isUsingPrimary}>
-                  {isUsingPrimary ? "P " : ""}
-                  {primary.name.trim()}
-                </Text>{" "}
-                {getStatusIndicator(primaryStatus)}
-                {isUsingPrimary && <Text color="green"> ← ACTIVE</Text>}
+                {"  "}├── {statusEmoji(primaryStatus)} {primary.name.trim()}
               </Text>,
             );
           }
           if (fallback) {
             lines.push(
-              <Text wrap="truncate-end" key="fo-fallback">
+              <Text
+                wrap="truncate-end"
+                key="fo-fallback"
+                color={!isUsingPrimary && fallbackStatus !== "DOWN" ? undefined : "gray"}
+              >
                 {"  "}
-                {"  "}└──{" "}
-                <Text color={!isUsingPrimary ? "yellow" : "gray"} bold={!isUsingPrimary}>
-                  {!isUsingPrimary ? "P " : ""}
-                  {fallback.name.trim()}
-                </Text>{" "}
-                {getStatusIndicator(fallbackStatus)}
-                {!isUsingPrimary && <Text color="yellow"> ← FALLBACK ACTIVE</Text>}
+                {"  "}└── {statusEmoji(fallbackStatus)} {fallback.name.trim()}
               </Text>,
             );
           }
@@ -101,21 +100,16 @@ const ServiceItem: React.FC<ServiceItemProps> = React.memo(
         }
 
     // Regular service
-    const serverUrls =
-      service.loadBalancer?.servers.map((s) => s.url.trim()).join(", ") ||
-      "No servers";
+    // Simplify: omit URLs to reduce visual noise
 
     if (maxLines !== undefined && maxLines <= 0) {
       return null;
     }
     return (
-      <Text wrap="truncate-end">
+      <Text wrap="truncate-end" color={isActiveForRouter && status !== "DOWN" ? undefined : "gray"}>
         {"  "}
-        {connector}{" "}
-        <Text color="white" bold>
-          {service.name.trim()}
-        </Text>{" "}
-        {getStatusIndicator(status)} <Text color="gray">{serverUrls}</Text>
+        {connector} {statusEmoji(status)}
+        {service.name.trim()}
       </Text>
     );
   },

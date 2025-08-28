@@ -3,6 +3,8 @@ import React from "react";
 import type { Router, Service } from "../types/traefik";
 import ServiceItem from "./ServiceItem";
 import { getRouterItemHeight, getServiceItemHeight } from "../utils/layout";
+import { getServiceStatus, type ServiceStatus } from "../logic/status";
+import { getFailoverServices } from "../logic/failover";
 
 interface RouterItemProps {
   router: Router;
@@ -25,6 +27,42 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
       return servicePattern.test(s.name);
     });
 
+    // Derive router-level health and active service
+    let aliveCount = 0;
+    let activeServiceName: string | undefined;
+    let routerStatus: ServiceStatus = "UNKNOWN";
+
+    // Determine alive services and which one is effectively active
+    for (const svc of routerServices) {
+      if (svc.type === "failover" && svc.failover) {
+        const { primary, fallback } = getFailoverServices(svc.name, services);
+        const primaryStatus = primary
+          ? getServiceStatus(primary, services, new Set())
+          : "UNKNOWN";
+        const fallbackStatus = fallback
+          ? getServiceStatus(fallback, services, new Set())
+          : "UNKNOWN";
+        if (primaryStatus === "UP") {
+          aliveCount += 1;
+          if (!activeServiceName) activeServiceName = primary?.name;
+        } else if (fallbackStatus === "UP") {
+          aliveCount += 1;
+          if (!activeServiceName) activeServiceName = fallback?.name;
+        }
+      } else {
+        const st = getServiceStatus(svc, services, new Set());
+        if (st === "UP") {
+          aliveCount += 1;
+          if (!activeServiceName) activeServiceName = svc.name;
+        }
+      }
+    }
+    routerStatus = aliveCount > 0 ? "UP" : routerServices.length === 0 ? "UNKNOWN" : "DOWN";
+    const isDown = routerStatus === "DOWN";
+    const LeadingIcon: React.FC = () => (
+      <Text color={isDown ? undefined : "cyan"}>{isDown ? "💀" : "⬢ "}</Text>
+    );
+
     // If no partial rendering requested, render full item as before
     if (maxLines === undefined) {
       return (
@@ -34,8 +72,8 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
           marginBottom={isLast ? 0 : 1}
         >
           <Text backgroundColor={isSelected ? "blue" : undefined} wrap="truncate-end">
-            <Text color="cyan">⬢</Text>{" "}
-            <Text color="white" bold>
+            <LeadingIcon />
+            <Text color={isDown ? "red" : "white"} bold>
               {router.name.trim()}
             </Text>
           </Text>
@@ -52,6 +90,7 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
               services={services}
               terminalWidth={terminalWidth}
               isLast={index === routerServices.length - 1}
+              isActiveForRouter={service.type !== "failover" && activeServiceName === service.name}
             />
           ))}
         </Box>
@@ -84,8 +123,8 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
     // Header line
     pushLine(
       <Text backgroundColor={isSelected ? "blue" : undefined} wrap="truncate-end" key="router-header">
-        <Text color="cyan">⬢</Text>{" "}
-        <Text color="white" bold>
+        <LeadingIcon />
+        <Text color={isDown ? "red" : "white"} bold>
           {router.name.trim()}
         </Text>
       </Text>
@@ -125,6 +164,7 @@ const RouterItem: React.FC<RouterItemProps> = React.memo(
             isLast={isServiceLast}
             maxLines={svcMaxLines}
             cutFrom={svcCutFrom as any}
+            isActiveForRouter={service.type !== "failover" && activeServiceName === service.name}
           />
         );
 
