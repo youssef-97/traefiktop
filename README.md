@@ -24,12 +24,18 @@ A simple, keyboard‑friendly terminal UI for exploring Traefik routers and serv
 - Homebrew/AUR/Nix: available via GoReleaser targets (see Releases). 
 
 ## Usage
-`--host` is required. Optionally hide routers by name with `--ignore` patterns (case‑insensitive). Use `*` at the start/end for “starts with” / “ends with”.
+`--host` is required. Optionally hide routers by name with `--ignore` patterns (case‑insensitive). Use `*` at the start/end for “starts with” / “ends with”. Use `--insecure` to disable TLS verification for development against self‑signed endpoints.
 
 ```bash
 traefiktop --host https://traefik.example.org \
   --ignore staging-* \
   --ignore *-tmp,*-old
+```
+
+Development only (self-signed endpoints):
+
+```
+traefiktop --host https://selfsigned.local --insecure
 ```
 
 ## Keys

@@ -60,6 +60,7 @@ async function main() {
   const args = process.argv.slice(2);
   let apiUrl: string | undefined;
   const ignorePatterns: string[] = [];
+  let insecure = false;
 
   const pushIgnore = (val?: string) => {
     if (!val) return;
@@ -76,13 +77,16 @@ async function main() {
     const a = args[i];
     if (a === "--help" || a === "-h") {
       console.log(
-        "Usage: traefiktop --host <url> [--ignore <pat>[,<pat>...]] [--ignore <pat>]...",
+        "Usage: traefiktop --host <url> [--ignore <pat>[,<pat>...]] [--ignore <pat>]... [--insecure]",
       );
       console.log(
         "  --host     REQUIRED. Traefik API base URL (e.g. https://traefik.local)",
       );
       console.log(
         "  --ignore   Hide routers by name (case-insensitive). Supports '*prefix', 'suffix*', and '*contains*'.",
+      );
+      console.log(
+        "  --insecure Disable TLS certificate verification (development only)",
       );
       process.exit(0);
     }
@@ -103,11 +107,21 @@ async function main() {
     if (a.startsWith("--ignore=")) {
       pushIgnore(a.split("=")[1]);
     }
+    if (a === "--insecure") {
+      insecure = true;
+      continue;
+    }
   }
 
   if (!apiUrl) {
     console.error("Error: --host <url> is required. See --help for usage.");
     process.exit(1);
+  }
+  if (insecure) {
+    process.env.TRAEFIKTOP_INSECURE = "1";
+    console.warn(
+      "⚠️  Insecure TLS enabled: certificate verification is disabled",
+    );
   }
   // Initialize logger for normal app mode
   const loggerResult = await initializeLogger();

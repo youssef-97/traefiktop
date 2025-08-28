@@ -39,18 +39,14 @@ export const ServiceItemSchema = yup.object({
   failover: FailoverConfigSchema.optional(),
   serverStatus: yup
     .object()
-    .test(
-      "is-record",
-      "serverStatus must be a record of strings",
-      (value) => {
-        if (value === undefined) return true;
-        return (
-          typeof value === "object" &&
-          value !== null &&
-          Object.values(value).every((v) => typeof v === "string")
-        );
-      },
-    )
+    .test("is-record", "serverStatus must be a record of strings", (value) => {
+      if (value === undefined) return true;
+      return (
+        typeof value === "object" &&
+        value !== null &&
+        Object.values(value).every((v) => typeof v === "string")
+      );
+    })
     .optional(),
 });
 
@@ -76,9 +72,11 @@ export const RouterSchema = yup
   .required();
 
 const fetchTraefikData = <_T>(url: string): ResultAsync<any[], Error> => {
-  // WARNING: Disabling SSL verification for development purposes only.
-  // DO NOT do this in production.
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+  // Optionally disable TLS verification only when explicitly requested.
+  // Enable by setting TRAEFIKTOP_INSECURE=1 (or run with --insecure flag).
+  if (process.env.TRAEFIKTOP_INSECURE === "1") {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+  }
 
   return ResultAsync.fromPromise(
     (async () => {
