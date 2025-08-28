@@ -1,6 +1,6 @@
 <div>
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/logo-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.svg">
   <img alt="traefiktop" src="assets/logo-light.svg">
 </picture>
