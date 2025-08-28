@@ -14,17 +14,6 @@
 
 A simple, keyboard‑friendly terminal UI for exploring Traefik routers and services. Built with React + Ink, focused on clarity over chrome.
 
-## Screenshot
-
-<!-- Replace with a real TUI screenshot or GIF -->
-![traefiktop screenshot](assets/screenshot.png)
-
-## What it shows
-- Routers, their rules, and the services they target
-- Which router is effectively down (no healthy services)
-- The active service path (failover aware)
-- Quick, readable status with a minimal set of emojis and colors
-
 ## 🚀 Installation methods
 
 <details>
@@ -74,6 +63,17 @@ Grab binaries and packages from the latest release:
 https://github.com/darksworm/traefiktop/releases/latest
 
 </details>
+
+## Screenshot
+
+<!-- Replace with a real TUI screenshot or GIF -->
+![traefiktop screenshot](assets/screenshot.png)
+
+## What it shows
+- Routers, their rules, and the services they target
+- Which router is effectively down (no healthy services)
+- The active service path (failover aware)
+- Quick, readable status with a minimal set of emojis and colors
 
 ## Usage
 `--host` is required. Optionally hide routers by name with `--ignore` patterns (case‑insensitive). Use `*` at the start/end for “starts with” / “ends with”. Use `--insecure` to disable TLS verification for development against self‑signed endpoints.
