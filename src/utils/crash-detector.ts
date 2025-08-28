@@ -49,12 +49,10 @@ export async function runWithCrashDetection(
             const result = await tailLogs({ session: "latest" });
 
             if (result.isErr()) {
-              console.error(`Failed to tail logs: ${result.error.message}`);
-              console.error("💡 Try manually: bun run logs");
+              console.error(`Failed to show logs: ${result.error.message}`);
             }
           } catch (error) {
             console.error("Failed to show logs:", error);
-            console.error("💡 Try manually: bun run logs");
           }
         }
 
