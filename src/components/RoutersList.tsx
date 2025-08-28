@@ -19,7 +19,10 @@ const RoutersList: React.FC<RoutersListProps> = ({
   const { stdout } = useStdout();
   const rows = (stdout as any)?.rows ?? process.stdout.rows ?? 24;
   const cols = (stdout as any)?.columns ?? process.stdout.columns ?? 80;
-  const isTTY = (stdout as any)?.isTTY ?? (typeof process !== "undefined" && (process.stdout as any)?.isTTY) ?? false;
+  const isTTY =
+    (stdout as any)?.isTTY ??
+    (typeof process !== "undefined" && (process.stdout as any)?.isTTY) ??
+    false;
   const nonInteractive = !isTTY;
   const terminalWidth = cols;
 
@@ -35,7 +38,7 @@ const RoutersList: React.FC<RoutersListProps> = ({
   const headerHeight = 1; // Search bar
   const footerHeight = 1; // Navigation footer (only shown if scrolling needed)
   // In non-interactive mode (e.g., redirecting to a file), render all content without pagination
-  const availableHeight = nonInteractive ? Number.MAX_SAFE_INTEGER : rows - headerHeight;
+  const availableHeight = nonInteractive ? Number.MAX_SAFE_INTEGER : rows - headerHeight - 1;
 
   // Calculate how many items can fit on screen for initial estimate
   // Get TUI state and filtered routers (must be called at top level)
@@ -112,7 +115,7 @@ const RoutersList: React.FC<RoutersListProps> = ({
     state.topIndex,
     Math.max(0, filteredRouters.length - 1),
   );
-  let { windowRouters: visibleRouters, windowUsedLines } = buildWindow(
+  let { windowRouters: visibleRouters } = buildWindow(
     startIndex,
   );
 
@@ -202,13 +205,6 @@ const RoutersList: React.FC<RoutersListProps> = ({
   }
 
   const shouldShowFooter = !nonInteractive && filteredRouters.length > visibleRouters.length;
-  const spacerHeight = !nonInteractive
-    ? Math.max(
-        0,
-        availableHeight - (shouldShowFooter ? footerHeight : 0) - windowUsedLines,
-      )
-    : 0;
-
   return (
     <Box flexDirection="column">
       {/* Always visible header */}
@@ -228,28 +224,26 @@ const RoutersList: React.FC<RoutersListProps> = ({
         )}
       </Box>
 
-      {/* Content */}
-      {visibleRouters.map((item, index) => {
-        const absoluteIndex = startIndex + index;
-        const isLast = index === visibleRouters.length - 1;
-        return (
-          <RouterItem
-            key={item.router.name}
-            router={item.router}
-            services={allServices}
-            isSelected={absoluteIndex === state.selectedRouter}
-            terminalWidth={terminalWidth}
-            isLast={isLast}
-            maxLines={item.maxLines}
-            cutFrom={item.cutFrom}
-          />
-        );
-      })}
-
-      {/* Spacer to push footer to bottom */}
-      {spacerHeight > 0 && <Box height={spacerHeight} />}
-
-      {/* Footer with navigation info */}
+      {/* Content area fills remaining space */}
+      <Box flexDirection="column" flexGrow={1}>
+        {visibleRouters.map((item, index) => {
+          const absoluteIndex = startIndex + index;
+          const isLast = index === visibleRouters.length - 1;
+          return (
+            <RouterItem
+              key={item.router.name}
+              router={item.router}
+              services={allServices}
+              isSelected={absoluteIndex === state.selectedRouter}
+              terminalWidth={terminalWidth}
+              isLast={isLast}
+              maxLines={item.maxLines}
+              cutFrom={item.cutFrom}
+            />
+          );
+        })}
+      </Box>
+      {/*Footer with navigation info */}
       {shouldShowFooter && (
         <Box justifyContent="center" backgroundColor="gray">
           <Text>
