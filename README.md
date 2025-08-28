@@ -1,9 +1,9 @@
-# Traefik TUI
+# TraefikTop
 
-[![GitHub Downloads](https://img.shields.io/github/downloads/darksworm/traefik-tui/total?style=flat-square&label=github+downloads)](https://github.com/darksworm/traefik-tui/releases/latest)
-[![Latest Release](https://img.shields.io/github/v/release/darksworm/traefik-tui?style=flat-square)](https://github.com/darksworm/traefik-tui/releases/latest)
-[![License](https://img.shields.io/github/license/darksworm/traefik-tui?style=flat-square)](./LICENSE)
-[![codecov](https://img.shields.io/codecov/c/github/darksworm/traefik-tui?style=flat-square)](https://codecov.io/github/darksworm/traefik-tui)
+[![GitHub Downloads](https://img.shields.io/github/downloads/darksworm/traefiktop/total?style=flat-square&label=github+downloads)](https://github.com/darksworm/traefiktop/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/darksworm/traefiktop?style=flat-square)](https://github.com/darksworm/traefiktop/releases/latest)
+[![License](https://img.shields.io/github/license/darksworm/traefiktop?style=flat-square)](./LICENSE)
+[![codecov](https://img.shields.io/codecov/c/github/darksworm/traefiktop?style=flat-square)](https://codecov.io/github/darksworm/traefiktop)
 
 A simple, keyboard‑friendly terminal UI for exploring Traefik routers and services. Built with React + Ink, focused on clarity over chrome.
 
@@ -16,9 +16,9 @@ A simple, keyboard‑friendly terminal UI for exploring Traefik routers and serv
 ## Install
 - One‑liner (shell script):
   ```bash
-  curl -sSL https://raw.githubusercontent.com/darksworm/traefik-tui/main/install.sh | sh
+  curl -sSL https://raw.githubusercontent.com/darksworm/traefiktop/main/install.sh | sh
   # or pin a version
-  curl -sSL https://raw.githubusercontent.com/darksworm/traefik-tui/main/install.sh | sh -s -- v0.1.0
+  curl -sSL https://raw.githubusercontent.com/darksworm/traefiktop/main/install.sh | sh -s -- v0.1.0
   ```
 - Releases: download binaries/packages from the Releases page.
 - Homebrew/AUR/Nix: available via GoReleaser targets (see Releases). 
@@ -27,7 +27,7 @@ A simple, keyboard‑friendly terminal UI for exploring Traefik routers and serv
 `--host` is required. Optionally hide routers by name with `--ignore` patterns (case‑insensitive). Use `*` at the start/end for “starts with” / “ends with”.
 
 ```bash
-traefik-tui --host https://traefik.example.org \
+traefiktop --host https://traefik.example.org \
   --ignore staging-* \
   --ignore *-tmp,*-old
 ```

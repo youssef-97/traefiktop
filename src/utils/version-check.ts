@@ -15,7 +15,7 @@ interface VersionCheckResult {
 }
 
 const CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
-const CACHE_FILE = join(tmpdir(), ".traefik-tui-version-cache.json");
+const CACHE_FILE = join(tmpdir(), ".traefiktop-version-cache.json");
 
 async function getCachedResult(): Promise<VersionCheckResult | null> {
   try {
@@ -61,7 +61,7 @@ function compareVersions(current: string, latest: string): boolean {
 
 function fetchLatestVersion(): ResultAsync<string, { message: string }> {
   return ResultAsync.fromPromise(
-    fetch("https://registry.npmjs.org/traefik-tui/latest"),
+    fetch("https://registry.npmjs.org/traefiktop/latest"),
     (error: any) => ({
       message: error?.message || "Network error while checking for updates",
     }),

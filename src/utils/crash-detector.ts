@@ -50,11 +50,11 @@ export async function runWithCrashDetection(
 
             if (result.isErr()) {
               console.error(`Failed to tail logs: ${result.error.message}`);
-              console.error("💡 Try manually: traefik-tui --tail-logs");
+              console.error("💡 Try manually: traefiktop --tail-logs");
             }
           } catch (error) {
             console.error("Failed to show logs:", error);
-            console.error("💡 Try manually: traefik-tui --tail-logs");
+            console.error("💡 Try manually: traefiktop --tail-logs");
           }
         }
 

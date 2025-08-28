@@ -1,5 +1,5 @@
 {
-  "name": "traefik-tui",
+  "name": "traefiktop",
   "author": "darksworm (Ilmars Janis Bluzmanis)",
   "version": "0.1.0",
   "private": true,
@@ -24,11 +24,11 @@
     "bun": ">=1.2.20"
   },
   "bugs": {
-    "url": "https://github.com/darksworm/traefik-tui/issues"
+    "url": "https://github.com/darksworm/traefiktop/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/darksworm/traefik-tui.git"
+    "url": "git+https://github.com/darksworm/traefiktop.git"
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {

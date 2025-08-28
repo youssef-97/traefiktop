@@ -16,7 +16,7 @@ export function setupGlobalErrorHandlers(): void {
     // Don't exit the process for unhandled rejections in development
     // In production, this might be more critical
     console.error("⚠️  Unhandled Promise Rejection:", error.message);
-    console.error("💡 View logs with: traefik-tui --tail-logs");
+    console.error("💡 View logs with: traefiktop --tail-logs");
   });
 
   // Handle uncaught exceptions
@@ -28,7 +28,7 @@ export function setupGlobalErrorHandlers(): void {
     });
 
     console.error("💥 Uncaught Exception:", error.message);
-    console.error("💡 View logs with: traefik-tui --tail-logs");
+    console.error("💡 View logs with: traefiktop --tail-logs");
 
     // For uncaught exceptions, we should exit gracefully
     process.exit(1);

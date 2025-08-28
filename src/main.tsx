@@ -76,7 +76,7 @@ async function main() {
     const a = args[i];
     if (a === "--help" || a === "-h") {
       console.log(
-        "Usage: traefik-tui --host <url> [--ignore <pat>[,<pat>...]] [--ignore <pat>]...",
+        "Usage: traefiktop --host <url> [--ignore <pat>[,<pat>...]] [--ignore <pat>]...",
       );
       console.log(
         "  --host     REQUIRED. Traefik API base URL (e.g. https://traefik.local)",
@@ -123,7 +123,7 @@ async function main() {
   // Setup global error handlers (after logger is initialized)
   setupGlobalErrorHandlers();
 
-  log.info("Traefik TUI session started", "main", {
+  log.info("TraefikTop session started", "main", {
     sessionId: logger.getSessionId(),
     logFile: logger.getLogFilePath(),
   });

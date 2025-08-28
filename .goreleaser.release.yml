@@ -1,6 +1,6 @@
 version: 2
 
-project_name: traefik-tui
+project_name: traefiktop
 
 # Global hooks (run once before all builds)
 before:
@@ -12,7 +12,7 @@ before:
 builds:
   - id: bun-standard
     builder: bun
-    binary: traefik-tui
+    binary: traefiktop
     main: src/main.tsx
     targets:
       - linux-x64-modern
@@ -22,7 +22,7 @@ builds:
 
   - id: bun-musl
     builder: bun
-    binary: traefik-tui
+    binary: traefiktop
     main: src/main.tsx
     targets:
       - linux-x64-musl-modern
@@ -49,11 +49,11 @@ archives:
       - CHANGELOG*
 
 homebrew_casks:
-  - name: traefik-tui
+  - name: traefiktop
     description: A TUI for visualizing Traefik routing
-    homepage: https://github.com/darksworm/traefik-tui
+    homepage: https://github.com/darksworm/traefiktop
     ids: [bun-archives-standard]
-    binary: traefik-tui
+    binary: traefiktop
     repository:
       owner: darksworm
       name: homebrew-tap
@@ -63,11 +63,11 @@ homebrew_casks:
       post:
         install: |
           if OS.mac?
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/traefik-tui"]
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/traefiktop"]
           end
     caveats: |
       To get started:
-        traefik-tui --help
+        traefiktop --help
 
 # Release config
 release:
@@ -110,17 +110,17 @@ checksum:
   name_template: "checksums.txt"
 
 aurs:
-  - name: traefik-tui-bin
+  - name: traefiktop-bin
     description: A TUI for visualizing Traefik routing
-    homepage: https://github.com/darksworm/traefik-tui
+    homepage: https://github.com/darksworm/traefiktop
     private_key: "{{ .Env.AUR_SSH_PRIVATE_KEY }}"
-    git_url: ssh://aur@aur.archlinux.org/traefik-tui-bin.git
-    provides: [traefik-tui]
-    conflicts: [traefik-tui]
+    git_url: ssh://aur@aur.archlinux.org/traefiktop-bin.git
+    provides: [traefiktop]
+    conflicts: [traefiktop]
     skip_upload: false
     commit_msg_template: "upgpkg: {{ .ProjectName }} {{ .Version }}"
     package: |
-      _binname="traefik-tui"
+      _binname="traefiktop"
       install -Dm755 "./${_binname}" "${pkgdir}/usr/bin/${_binname}"
       install -Dm644 "./LICENSE" "${pkgdir}/usr/share/licenses/${_binname}/LICENSE"
       install -Dm644 "./README.md" "${pkgdir}/usr/share/doc/${_binname}/README.md"
@@ -132,7 +132,7 @@ aurs:
       email: bot@goreleaser.com
 
 nix:
-  - name: traefik-tui
+  - name: traefiktop
     ids: [ bun-archives-standard ]
     goamd64: v1
     repository:
@@ -148,25 +148,25 @@ nfpms:
     bindir: /usr/bin
     file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     maintainer: "darksworm <bot@goreleaser.com>"
-    homepage: "https://github.com/darksworm/traefik-tui"
+    homepage: "https://github.com/darksworm/traefiktop"
     description: "A TUI for visualizing Traefik routing"
     license: GPL-3.0-or-later
     section: utils
     priority: optional
-    provides: [traefik-tui]
-    conflicts: [traefik-tui, traefik-tui-musl]
+    provides: [traefiktop]
+    conflicts: [traefiktop, traefiktop-musl]
 
   - id: linux-packages-musl
     ids: [bun-musl]
     formats: [deb, rpm, apk]
     bindir: /usr/bin
     file_name_template: "{{ .ProjectName }}-musl_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    package_name: "traefik-tui-musl"
+    package_name: "traefiktop-musl"
     maintainer: "darksworm <bot@goreleaser.com>"
-    homepage: "https://github.com/darksworm/traefik-tui"
+    homepage: "https://github.com/darksworm/traefiktop"
     description: "A TUI for visualizing Traefik routing (musl build)"
     license: GPL-3.0-or-later
     section: utils
     priority: optional
-    provides: [traefik-tui]
-    conflicts: [traefik-tui, traefik-tui-standard]
+    provides: [traefiktop]
+    conflicts: [traefiktop, traefiktop-standard]

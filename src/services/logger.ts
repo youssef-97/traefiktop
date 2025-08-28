@@ -30,7 +30,7 @@ class Logger {
     this.keepSessions = config.keepSessions ?? 5;
     this.logFilePath = join(
       tmpdir(),
-      `traefik-tui-session-${this.sessionId}.log`,
+      `traefiktop-session-${this.sessionId}.log`,
     );
 
     this.pinoLogger = pino(
@@ -76,7 +76,7 @@ class Logger {
     })).andThen((files) => {
       const sessionFiles = files
         .filter(
-          (f) => f.startsWith("traefik-tui-session-") && f.endsWith(".log"),
+          (f) => f.startsWith("traefiktop-session-") && f.endsWith(".log"),
         )
         .map((f) => ({ name: f, path: join(tmpdir(), f) }))
         .sort((a, b) => b.name.localeCompare(a.name)); // Sort by name (timestamp) descending
@@ -103,7 +103,7 @@ class Logger {
     }))
       .andThen((files) => {
         const sessionFiles = files.filter(
-          (f) => f.startsWith("traefik-tui-session-") && f.endsWith(".log"),
+          (f) => f.startsWith("traefiktop-session-") && f.endsWith(".log"),
         );
 
         return ResultAsync.combine(
@@ -118,14 +118,14 @@ class Logger {
         fileStats
           .sort((a, b) => b.mtime.getTime() - a.mtime.getTime()) // Sort by modification time descending
           .map((fs) =>
-            fs.file.replace("traefik-tui-session-", "").replace(".log", ""),
+            fs.file.replace("traefiktop-session-", "").replace(".log", ""),
           ),
       );
   }
 
   // Get the path for a specific session file
   static getSessionFilePath(sessionId: string): string {
-    return join(tmpdir(), `traefik-tui-session-${sessionId}.log`);
+    return join(tmpdir(), `traefiktop-session-${sessionId}.log`);
   }
 
   // Get the most recent session file
