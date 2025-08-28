@@ -109,7 +109,6 @@ async function main() {
     }
     if (a === "--insecure") {
       insecure = true;
-      continue;
     }
     // no-op
   }
