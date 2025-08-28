@@ -1,6 +1,7 @@
 import { Box, Text, useStdout } from "ink";
 import TextInput from "ink-text-input";
 import type React from "react";
+import { useState } from "react";
 import { useTraefikData } from "../hooks/useTraefikData";
 import { useTui } from "../tui/useTui";
 import { getRouterItemHeight } from "../utils/layout";
@@ -46,11 +47,22 @@ const RoutersList: React.FC<RoutersListProps> = ({
 
   // Calculate how many items can fit on screen for initial estimate
   // Get TUI state and filtered routers (must be called at top level)
+  const [flash, setFlash] = useState<string | null>(null);
+
   const { state, dispatch, filteredRouters } = useTui(
     allRouters,
     allServices,
     availableHeight,
-    { ignorePatterns, onRefresh: refresh },
+    {
+      ignorePatterns,
+      onRefresh: () => {
+        try {
+          refresh();
+          setFlash("Refreshed");
+          setTimeout(() => setFlash(null), 1500);
+        } catch {}
+      },
+    },
   );
 
   if (loading) {
@@ -283,8 +295,10 @@ const RoutersList: React.FC<RoutersListProps> = ({
             {startIndex + visibleRouters.length} of {filteredRouters.length}{" "}
             {startIndex + visibleRouters.length < filteredRouters.length && "▼"}
           </Text>
+          <Text>{flash ?? ""}</Text>
           <Text>
-            sort: {state.sortMode === "status" ? "dead" : "name"} • press s
+            sort: {state.sortMode === "status" ? "dead" : "name"} • s: sort • r:
+            refresh
           </Text>
         </Box>
       )}
