@@ -90,7 +90,13 @@ const RoutersList: React.FC<RoutersListProps> = ({
 
     // Ensure at least one item is visible (even if it overflows on very small screens)
     if (windowRouters.length === 0 && filteredRouters.length > 0 && startIndex < filteredRouters.length) {
-      windowRouters.push(filteredRouters[startIndex]);
+      const forcedRouter = filteredRouters[startIndex];
+      windowRouters.push(forcedRouter);
+      // Best-effort windowUsedLines to avoid adding spacer when already overflowing
+      const needsFooter = filteredRouters.length > 1 && (startIndex > 0 || startIndex < filteredRouters.length - 1);
+      const maxUsableHeight = needsFooter ? availableHeight - footerHeight : availableHeight;
+      const forcedHeight = getRouterItemHeight(forcedRouter, allServices);
+      windowUsedLines = Math.min(maxUsableHeight, forcedHeight);
     }
 
     return { windowRouters, windowUsedLines };
