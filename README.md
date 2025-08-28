@@ -1,9 +1,15 @@
-# traefiktop
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/logo-light.svg">
+  <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.svg">
+  <img alt="traefiktop" src="assets/logo-light.svg">
+</picture>
 
 [![GitHub Downloads](https://img.shields.io/github/downloads/darksworm/traefiktop/total?style=flat-square&label=github+downloads)](https://github.com/darksworm/traefiktop/releases/latest)
 [![Latest Release](https://img.shields.io/github/v/release/darksworm/traefiktop?style=flat-square)](https://github.com/darksworm/traefiktop/releases/latest)
 [![License](https://img.shields.io/github/license/darksworm/traefiktop?style=flat-square)](./LICENSE)
 [![codecov](https://img.shields.io/codecov/c/github/darksworm/traefiktop?style=flat-square)](https://codecov.io/github/darksworm/traefiktop)
+</div>
 
 A simple, keyboard‑friendly terminal UI for exploring Traefik routers and services. Built with React + Ink, focused on clarity over chrome.
 

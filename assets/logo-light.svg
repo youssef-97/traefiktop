@@ -1,0 +1,13 @@
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .text-main { fill: #374151; font-family: 'Arial', sans-serif; font-weight: 600; }
+      .text-accent { fill: #3B82F6; font-family: 'Arial', sans-serif; font-weight: 600; }
+    </style>
+  </defs>
+  
+  <!-- Combined text with styled æ -->
+  <text x="10" y="35" font-size="28" class="text-main">
+    tr<tspan class="text-accent">æ</tspan>fiktøp
+  </text>
+</svg>
