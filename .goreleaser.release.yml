@@ -148,8 +148,8 @@ dockers:
     goos: linux
     goarch: amd64
     image_templates:
-      - "{{ if .Env.REGISTRY }}{{ .Env.REGISTRY }}{{ else }}ghcr.io{{ end }}/darksworm/traefiktop:{{ .Version }}-amd64"
-      - "{{ if .Env.REGISTRY }}{{ .Env.REGISTRY }}{{ else }}ghcr.io{{ end }}/darksworm/traefiktop:latest-amd64"
+      - "ghcr.io/darksworm/traefiktop:{{ .Version }}-amd64"
+      - "ghcr.io/darksworm/traefiktop:latest-amd64"
     dockerfile: Dockerfile
     use: buildx
     build_flag_templates:
@@ -165,8 +165,8 @@ dockers:
     goos: linux
     goarch: arm64
     image_templates:
-      - "{{ if .Env.REGISTRY }}{{ .Env.REGISTRY }}{{ else }}ghcr.io{{ end }}/darksworm/traefiktop:{{ .Version }}-arm64"
-      - "{{ if .Env.REGISTRY }}{{ .Env.REGISTRY }}{{ else }}ghcr.io{{ end }}/darksworm/traefiktop:latest-arm64"
+      - "ghcr.io/darksworm/traefiktop:{{ .Version }}-arm64"
+      - "ghcr.io/darksworm/traefiktop:latest-arm64"
     dockerfile: Dockerfile
     use: buildx
     build_flag_templates:
@@ -178,14 +178,14 @@ dockers:
       - "--label=org.opencontainers.image.source=https://github.com/darksworm/traefiktop"
 
 docker_manifests:
-  - name_template: "{{ if .Env.REGISTRY }}{{ .Env.REGISTRY }}{{ else }}ghcr.io{{ end }}/darksworm/traefiktop:{{ .Version }}"
+  - name_template: "ghcr.io/darksworm/traefiktop:{{ .Version }}"
     image_templates:
-      - "{{ if .Env.REGISTRY }}{{ .Env.REGISTRY }}{{ else }}ghcr.io{{ end }}/darksworm/traefiktop:{{ .Version }}-amd64"
-      - "{{ if .Env.REGISTRY }}{{ .Env.REGISTRY }}{{ else }}ghcr.io{{ end }}/darksworm/traefiktop:{{ .Version }}-arm64"
-  - name_template: "{{ if .Env.REGISTRY }}{{ .Env.REGISTRY }}{{ else }}ghcr.io{{ end }}/darksworm/traefiktop:latest"
+      - "ghcr.io/darksworm/traefiktop:{{ .Version }}-amd64"
+      - "ghcr.io/darksworm/traefiktop:{{ .Version }}-arm64"
+  - name_template: "ghcr.io/darksworm/traefiktop:latest"
     image_templates:
-      - "{{ if .Env.REGISTRY }}{{ .Env.REGISTRY }}{{ else }}ghcr.io{{ end }}/darksworm/traefiktop:latest-amd64"
-      - "{{ if .Env.REGISTRY }}{{ .Env.REGISTRY }}{{ else }}ghcr.io{{ end }}/darksworm/traefiktop:latest-arm64"
+      - "ghcr.io/darksworm/traefiktop:latest-amd64"
+      - "ghcr.io/darksworm/traefiktop:latest-arm64"
 
 nfpms:
   - id: linux-packages-standard
