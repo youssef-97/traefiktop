@@ -147,7 +147,7 @@ dockers_v2:
   - id: docker-multi
     dockerfile: Dockerfile.v2
     ids: [bun-musl]
-    image:
+    images:
       - ghcr.io/darksworm/traefiktop
     tags:
       - "{{ .Version }}"
