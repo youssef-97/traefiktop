@@ -7,7 +7,10 @@ out/
 src/data/licenses.ts
 *.bun-build
 argonaut-cli
-./main
+main
+traefiktop-bin/
+routers.json
+services.json
 
 
 

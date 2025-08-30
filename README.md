@@ -109,6 +109,35 @@ bun run build:node
 bun run build:binary
 ```
 
+## Docker
+- Prebuilt images are published for releases to `ghcr.io/darksworm/traefiktop`.
+- Local builds work cross‑platform via a multi‑stage Dockerfile.
+
+Pull and run (interactive TTY):
+
+```bash
+docker run --rm -it ghcr.io/darksworm/traefiktop:latest \
+  --host https://traefik.example.org
+```
+
+Build locally and run:
+
+```bash
+# Build (uses buildx automatically if enabled)
+bun run docker:build
+
+# Run (pass CLI flags after image name)
+bun run docker:run -- --host https://traefik.example.org
+```
+
+Multi‑arch build with buildx (optional):
+
+```bash
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t ghcr.io/darksworm/traefiktop:dev .
+```
+
 ## Notes
 - API URL is mandatory. The app won’t start without `--host`.
 - Ignore patterns support: `foo*` (starts with), `*bar` (ends with), `*mid*` (contains). Pass multiple `--ignore` flags or comma‑separate values.
