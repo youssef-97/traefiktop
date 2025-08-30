@@ -142,51 +142,25 @@ nix:
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
 
 # Docker images (v2)
-# Docker images (dockers v1 until v2.12 is available on nightly)
-dockers:
-  - id: docker-amd64
+# Docker images (dockers_v2)
+dockers_v2:
+  - id: docker-multi
+    dockerfile: Dockerfile.v2
     ids: [bun-musl]
-    goos: linux
-    goarch: amd64
-    image_templates:
-      - "ghcr.io/darksworm/traefiktop:{{ .Version }}-amd64"
-      - "ghcr.io/darksworm/traefiktop:latest-amd64"
-    dockerfile: Dockerfile.runtime
-    use: buildx
-    build_flag_templates:
-      - "--platform=linux/amd64"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
-      - "--label=org.opencontainers.image.source=https://github.com/darksworm/traefiktop"
-
-  - id: docker-arm64
-    ids: [bun-musl]
-    goos: linux
-    goarch: arm64
-    image_templates:
-      - "ghcr.io/darksworm/traefiktop:{{ .Version }}-arm64"
-      - "ghcr.io/darksworm/traefiktop:latest-arm64"
-    dockerfile: Dockerfile.runtime
-    use: buildx
-    build_flag_templates:
-      - "--platform=linux/arm64"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
-      - "--label=org.opencontainers.image.source=https://github.com/darksworm/traefiktop"
-
-docker_manifests:
-  - name_template: "ghcr.io/darksworm/traefiktop:{{ .Version }}"
-    image_templates:
-      - "ghcr.io/darksworm/traefiktop:{{ .Version }}-amd64"
-      - "ghcr.io/darksworm/traefiktop:{{ .Version }}-arm64"
-  - name_template: "ghcr.io/darksworm/traefiktop:latest"
-    image_templates:
-      - "ghcr.io/darksworm/traefiktop:latest-amd64"
-      - "ghcr.io/darksworm/traefiktop:latest-arm64"
+    image:
+      - ghcr.io/darksworm/traefiktop
+    tags:
+      - "{{ .Version }}"
+      - latest
+    platforms:
+      - linux/amd64
+      - linux/arm64
+    labels:
+      org.opencontainers.image.created: "{{ .Date }}"
+      org.opencontainers.image.title: "{{ .ProjectName }}"
+      org.opencontainers.image.revision: "{{ .FullCommit }}"
+      org.opencontainers.image.version: "{{ .Version }}"
+      org.opencontainers.image.source: "https://github.com/darksworm/traefiktop"
 
 nfpms:
   - id: linux-packages-standard
