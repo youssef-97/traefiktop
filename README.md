@@ -32,6 +32,32 @@ curl -sSL https://raw.githubusercontent.com/darksworm/traefiktop/main/install.sh
 </details>
 
 <details>
+  <summary><strong>Docker (Linux/macOS)</strong></summary>
+
+Pull and run the prebuilt image from GHCR:
+
+```bash
+docker run --rm -it ghcr.io/darksworm/traefiktop:latest \
+  --host https://traefik.example.org
+```
+
+For self-signed endpoints, add `--insecure`. To reach a Traefik container, attach to its network:
+
+```bash
+docker run --rm -it --network <traefik_net> ghcr.io/darksworm/traefiktop:latest \
+  --host http://traefik:8080
+```
+
+Build locally instead of pulling:
+
+```bash
+bun run docker:build
+bun run docker:run -- --host https://traefik.example.org
+```
+
+</details>
+
+<details>
   <summary><strong>npm (Linux/macOS)</strong></summary>
 
 ```bash
